@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OpenInvertir Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201d12",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary rounded-lg p-1.5">
+<span class="material-symbols-outlined text-background-dark">account_balance_wallet</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tight">OpenInvertir</h1>
+<p class="text-xs text-slate-500 dark:text-primary/60 uppercase font-semibold">Admin Panel</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-background-dark font-medium" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span>Plan Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-primary/10">
+<div class="flex items-center gap-3 p-2">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden" data-alt="Admin user profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMBzH-pwjmgndM4zfEAHoOkusp2m-pPfYYTIUKpSMuU2O8rnS-bUMmivalVXGi-sw1YaxVgVgR6gm9zdze_YqgspaykNPMLwu4NLfUW3_8zRp-5onrLUprDGzYBm_-sH000eYgEooDhtRjMI4JR1A17k_CMt-HHj36rF72V47G-n4eGL3bEOvVrMxeBODMz8bkx8FtVrL5IZsJbq4SVAZg0x9aFDWyYTiEXYgYWgxWYgswiS8hOvh_EfiRO0ozz6n4s33IPwI2HEk')"></div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-medium truncate">Eduardo M.</p>
+<p class="text-xs text-slate-500 truncate">Super Admin</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer">logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="h-16 border-b border-slate-200 dark:border-primary/20 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-10">
+<h2 class="text-xl font-bold">Dashboard Overview</h2>
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-1.5 rounded-lg border border-slate-200 dark:border-primary/30 bg-slate-50 dark:bg-background-dark focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm w-64" placeholder="Search accounts..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-primary/10 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-primary/10">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 space-y-8">
+<!-- Key Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<p class="text-slate-500 dark:text-slate-400 font-medium">Total Users</p>
+<span class="material-symbols-outlined text-primary">group</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold">12,840</h3>
+<span class="text-emerald-500 text-sm font-semibold flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 12%
+                        </span>
+</div>
+<p class="text-xs text-slate-400 mt-2">Active accounts this month</p>
+</div>
+<div class="p-6 rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<p class="text-slate-500 dark:text-slate-400 font-medium">Total Deposits</p>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold">$4,285,100</h3>
+<span class="text-emerald-500 text-sm font-semibold flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 5.4%
+                        </span>
+</div>
+<p class="text-xs text-slate-400 mt-2">Historical investment volume</p>
+</div>
+<div class="p-6 rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<p class="text-slate-500 dark:text-slate-400 font-medium">Pending Withdrawals</p>
+<span class="material-symbols-outlined text-primary">pending_actions</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold">84</h3>
+<span class="text-amber-500 text-sm font-semibold flex items-center">
+<span class="material-symbols-outlined text-sm">warning</span> Action Required
+                        </span>
+</div>
+<p class="text-xs text-slate-400 mt-2">Requests awaiting approval</p>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="p-6 rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-bold">Deposit Trends</h4>
+<select class="bg-transparent border-none text-sm text-slate-500 focus:ring-0">
+<option>Last 7 days</option>
+<option>Last 30 days</option>
+</select>
+</div>
+<div class="h-48 w-full">
+<svg class="w-full h-full overflow-visible" viewbox="0 0 400 100">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#d4af35" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#d4af35" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,80 Q50,70 100,50 T200,60 T300,30 T400,10 V100 H0 Z" fill="url(#chartGradient)"></path>
+<path d="M0,80 Q50,70 100,50 T200,60 T300,30 T400,10" fill="none" stroke="#d4af35" stroke-linecap="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-4 px-2">
+<span class="text-xs text-slate-400">Mon</span>
+<span class="text-xs text-slate-400">Tue</span>
+<span class="text-xs text-slate-400">Wed</span>
+<span class="text-xs text-slate-400">Thu</span>
+<span class="text-xs text-slate-400">Fri</span>
+<span class="text-xs text-slate-400">Sat</span>
+<span class="text-xs text-slate-400">Sun</span>
+</div>
+</div>
+<div class="p-6 rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-bold">Withdrawal Approvals</h4>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-primary/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-primary/20 flex items-center justify-center text-xs font-bold">JD</div>
+<div>
+<p class="text-sm font-semibold">John Doe</p>
+<p class="text-xs text-slate-500">BTC Wallet</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">$1,200.00</p>
+<div class="flex gap-2 mt-1">
+<button class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase hover:bg-emerald-500/20">Approve</button>
+<button class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[10px] font-bold uppercase hover:bg-red-500/20">Reject</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-primary/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-primary/20 flex items-center justify-center text-xs font-bold">SM</div>
+<div>
+<p class="text-sm font-semibold">Sarah Miller</p>
+<p class="text-xs text-slate-500">Bank Transfer</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">$450.00</p>
+<div class="flex gap-2 mt-1">
+<button class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase hover:bg-emerald-500/20">Approve</button>
+<button class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[10px] font-bold uppercase hover:bg-red-500/20">Reject</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- User Management Table -->
+<div class="rounded-xl border border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark overflow-hidden shadow-sm">
+<div class="p-6 border-b border-slate-200 dark:border-primary/20 flex items-center justify-between">
+<h4 class="font-bold">User Management</h4>
+<button class="bg-primary text-background-dark px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">person_add</span>
+                        Add User
+                    </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-primary/5 text-slate-500 dark:text-primary/60 text-xs font-bold uppercase">
+<tr>
+<th class="px-6 py-4">User</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Total Invested</th>
+<th class="px-6 py-4">Recent Activity</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-primary/10">
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-slate-200 dark:bg-primary/10 flex items-center justify-center font-bold">AC</div>
+<div>
+<p class="text-sm font-semibold">Alex Carter</p>
+<p class="text-xs text-slate-500">alex.c@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold uppercase">Active</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium">$25,400.00</td>
+<td class="px-6 py-4 text-sm text-slate-500">2 mins ago</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-sm">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-slate-200 dark:bg-primary/10 flex items-center justify-center font-bold">MK</div>
+<div>
+<p class="text-sm font-semibold">Maria Kostic</p>
+<p class="text-xs text-slate-500">m.kostic@world.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-amber-500/10 text-amber-500 text-[11px] font-bold uppercase">Pending KYC</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium">$0.00</td>
+<td class="px-6 py-4 text-sm text-slate-500">1 hour ago</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-sm">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-slate-200 dark:bg-primary/10 flex items-center justify-center font-bold">RP</div>
+<div>
+<p class="text-sm font-semibold">Robert Paulson</p>
+<p class="text-xs text-slate-500">robert@fight.club</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold uppercase">Active</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium">$128,000.00</td>
+<td class="px-6 py-4 text-sm text-slate-500">Yesterday</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-sm">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-primary/5 flex items-center justify-between">
+<p class="text-xs text-slate-500">Showing 3 of 12,840 users</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 border border-slate-200 dark:border-primary/20 rounded bg-white dark:bg-background-dark text-xs hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors">Previous</button>
+<button class="px-3 py-1 border border-slate-200 dark:border-primary/20 rounded bg-white dark:bg-background-dark text-xs hover:bg-slate-100 dark:hover:bg-primary/10 transition-colors">Next</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

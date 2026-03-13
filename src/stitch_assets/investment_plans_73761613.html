@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Investment Plans - OpenInvertir</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201d12",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex flex-col min-h-screen w-full overflow-x-hidden">
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-20 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">OpenInvertir</h2>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-6 text-sm font-medium">
+<a class="hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary transition-colors border-b-2 border-primary pb-1" href="#">Investments</a>
+<a class="hover:text-primary transition-colors" href="#">Market</a>
+</nav>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10 lg:px-20">
+<div class="mb-10">
+<h1 class="text-4xl font-black tracking-tight mb-3">Investment Plans</h1>
+<p class="text-slate-600 dark:text-slate-400 max-w-2xl text-lg leading-relaxed">Choose a plan that fits your financial goals and start growing your wealth today with our professionally managed portfolios.</p>
+</div>
+<div class="flex flex-col lg:flex-row gap-8">
+<div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="mb-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold">Starter Plan</h3>
+<span class="bg-primary/20 text-primary text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded">Beginner</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">$100</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm">minimum</span>
+</div>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<span class="text-sm font-medium">5% Monthly Return</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">schedule</span>
+<span class="text-sm font-medium">Flexible duration</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<span class="text-sm font-medium">Low risk profile</span>
+</div>
+</div>
+<button class="mt-auto w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-primary hover:text-white transition-all rounded-lg font-bold text-sm tracking-wide">
+                            Invest Now
+                        </button>
+</div>
+<div class="flex flex-col rounded-xl border-2 border-primary bg-white dark:bg-slate-900 shadow-xl p-6 relative">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-background-dark text-[10px] font-black uppercase tracking-[2px] px-4 py-1 rounded-full">Most Popular</div>
+<div class="mb-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold">Growth Plan</h3>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">$1,000</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm">minimum</span>
+</div>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<span class="text-sm font-medium">8% Monthly Return</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<span class="text-sm font-medium">12 Months duration</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">security</span>
+<span class="text-sm font-medium">Moderate risk profile</span>
+</div>
+</div>
+<button class="mt-auto w-full py-3 px-4 bg-primary text-background-dark hover:brightness-110 transition-all rounded-lg font-bold text-sm tracking-wide">
+                            Invest Now
+                        </button>
+</div>
+<div class="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="mb-6">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold">Premium Plan</h3>
+<span class="bg-primary/20 text-primary text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded">High Yield</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">$10,000</span>
+<span class="text-slate-500 dark:text-slate-400 text-sm">minimum</span>
+</div>
+</div>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<span class="text-sm font-medium">12% Monthly Return</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">history</span>
+<span class="text-sm font-medium">24 Months duration</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+<span class="text-sm font-medium">Aggressive risk profile</span>
+</div>
+</div>
+<button class="mt-auto w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-primary hover:text-white transition-all rounded-lg font-bold text-sm tracking-wide">
+                            Invest Now
+                        </button>
+</div>
+</div>
+<aside class="w-full lg:w-80 shrink-0">
+<div class="sticky top-24 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 backdrop-blur-sm">
+<h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">calculate</span>
+                            Return Calculator
+                        </h2>
+<div class="space-y-5">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Investment Amount ($)</label>
+<input class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all" type="number" value="1000"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Investment Plan</label>
+<select class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all">
+<option>Starter (5%)</option>
+<option selected="">Growth (8%)</option>
+<option>Premium (12%)</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Duration (Months)</label>
+<input class="w-full accent-primary" max="60" min="1" type="range" value="12"/>
+<div class="flex justify-between text-[10px] mt-1 text-slate-400 font-bold uppercase">
+<span>1 Mo</span>
+<span>12 Months</span>
+<span>60 Mo</span>
+</div>
+</div>
+<div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-sm text-slate-500">Monthly Earnings</span>
+<span class="text-lg font-bold text-primary">$80.00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm text-slate-500">Total Return (12mo)</span>
+<span class="text-lg font-bold text-primary">$960.00</span>
+</div>
+<div class="p-4 bg-primary/10 rounded-lg border border-primary/20">
+<p class="text-[10px] uppercase font-bold text-primary mb-1">Total Balance after term</p>
+<p class="text-2xl font-black text-slate-900 dark:text-slate-100">$1,960.00</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<section class="mt-20">
+<div class="rounded-2xl overflow-hidden relative h-64 flex items-center px-10">
+<div class="absolute inset-0 bg-gradient-to-r from-background-dark/90 to-background-dark/20 z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Futuristic trading charts and financial data abstract" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAX95PXcrve7rigo0p48K1G5EVaB_M38ZkyC85wv59yp5XDPpG9GLOPOA0WxQro0uHA2xHNZ6r7abAWrI4cgPW2DWf83EXoj67OwQn_yLnvmR_ccPgC9KiNDF4CJnhksd74g3ZIiKBywm4XS5KDeYzuI625o1komII0yPptoy9hPL8EE9B7FurThO_j7M60lCPzps_pd8tLnSIz9XMaUv0Eo1pBLpvxofKRJtkedOCA7VzMe5F_n-EkQeW4ZPMsz_KEnhpwh01yOOo')"></div>
+<div class="relative z-20 max-w-lg">
+<h2 class="text-3xl font-bold text-white mb-4">Secure Your Future</h2>
+<p class="text-slate-300 mb-6">Our algorithms use state-of-the-art predictive analytics to minimize risks and maximize your capital gains.</p>
+<button class="bg-primary text-background-dark px-8 py-3 rounded-lg font-bold hover:brightness-110 transition-all">Get Started Today</button>
+</div>
+</div>
+</section>
+</main>
+<footer class="mt-auto border-t border-slate-200 dark:border-slate-800 px-6 py-10 lg:px-20 bg-slate-50 dark:bg-background-dark/50">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-bold text-slate-900 dark:text-slate-100">OpenInvertir</span>
+<span class="text-slate-500 dark:text-slate-500 text-sm ml-4">© 2024. All rights reserved.</span>
+</div>
+<div class="flex gap-8 text-sm font-medium text-slate-500">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+<a class="hover:text-primary" href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OpenInvertir | Premium Wealth Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#0f1115", // Adjusted to deep navy/charcoal for premium feel
+                        "card-dark": "#1a1d23",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex flex-col lg:flex-row h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-background-light dark:bg-card-dark">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-background-dark font-bold">account_balance_wallet</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-primary">OpenInvertir</h2>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">pie_chart</span>
+<span class="text-sm font-medium">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-sm font-medium">Investments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-sm font-medium">Transactions</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+<img alt="User Avatar" data-alt="User profile avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP16AIx-8U-sURgjZ0W5JRwrGy8NFgXla_sSEWfaMntz8aio49bstLr3d_E1MgcOC0gHh5K5k58ECP9QGOWd96JW3Gx79SNdJQkDzn8GbPKxyC7JeFvoukJHxEL6XT3n_-E_xh0scAsRlsfqeY7K6liZcjAXjEuGkJQnlvxjF4cEfD5OMGvGxiODGdCa8JQI4VJYKs8JfQRuySQEPQIlH3MO-kU-VBq1BWi9cfr8TDJIObA4oGm_S1LJRY6vmc76liNFlPxosffG4"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-semibold truncate">Alexander Vance</p>
+<p class="text-xs text-slate-500 truncate">Premium Member</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-4 lg:p-8">
+<!-- Top Bar -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h1 class="text-2xl font-bold">Welcome back, Alexander</h1>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Your wealth is secured and growing.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative p-2 rounded-lg bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2.5 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-card-dark"></span>
+</button>
+<button class="flex items-center gap-2 bg-primary text-background-dark px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                        New Investment
+                    </button>
+</div>
+</header>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Balance</span>
+<span class="material-symbols-outlined text-primary">account_balance</span>
+</div>
+<p class="text-3xl font-bold tracking-tight">$428,590.24</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-emerald-500 text-sm">arrow_upward</span>
+<span class="text-emerald-500 text-xs font-bold">+2.4% today</span>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Profits</span>
+<span class="material-symbols-outlined text-primary">monitoring</span>
+</div>
+<p class="text-3xl font-bold tracking-tight text-primary">+$14,203.11</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="text-slate-500 dark:text-slate-400 text-xs font-medium">This month</span>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Deposits</span>
+<span class="material-symbols-outlined text-primary">download</span>
+</div>
+<p class="text-3xl font-bold tracking-tight">$310,000.00</p>
+<div class="flex items-center gap-1 mt-2 text-slate-500 dark:text-slate-400">
+<span class="text-xs font-medium">Lifetime funding</span>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Monthly ROI</span>
+<span class="material-symbols-outlined text-primary">show_chart</span>
+</div>
+<p class="text-3xl font-bold tracking-tight text-primary">12.85%</p>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-emerald-500 text-sm">trending_up</span>
+<span class="text-emerald-500 text-xs font-bold">Above average</span>
+</div>
+</div>
+</div>
+<!-- Charts and Portfolio -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<!-- Performance Chart -->
+<div class="lg:col-span-2 p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold">Investment Performance</h3>
+<div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+<button class="px-3 py-1 text-xs font-bold rounded bg-white dark:bg-card-dark shadow-sm">7D</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500">1M</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500">1Y</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500">ALL</button>
+</div>
+</div>
+<div class="h-[300px] w-full relative flex flex-col justify-end">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 150">
+<!-- Gradient Area -->
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#d4af35" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#d4af35" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0 100 Q 50 80, 100 90 T 200 60 T 300 40 T 400 20 L 400 150 L 0 150 Z" fill="url(#chartGradient)"></path>
+<!-- Line -->
+<path d="M0 100 Q 50 80, 100 90 T 200 60 T 300 40 T 400 20" fill="none" stroke="#d4af35" stroke-width="3"></path>
+</svg>
+<div class="flex justify-between mt-4 text-xs text-slate-400 font-medium border-t border-slate-200 dark:border-slate-800 pt-4">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+</div>
+<!-- Portfolio Mix -->
+<div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+<h3 class="text-lg font-bold mb-6">Portfolio Mix</h3>
+<div class="space-y-6">
+<div>
+<div class="flex items-center justify-between text-sm mb-2">
+<span class="font-medium">Global Equities</span>
+<span class="text-primary font-bold">45%</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 45%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between text-sm mb-2">
+<span class="font-medium">Real Estate</span>
+<span class="text-primary font-bold">30%</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 30%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between text-sm mb-2">
+<span class="font-medium">Crypto Assets</span>
+<span class="text-primary font-bold">15%</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 15%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between text-sm mb-2">
+<span class="font-medium">Fixed Income</span>
+<span class="text-primary font-bold">10%</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 10%;"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/20">
+<p class="text-xs text-primary leading-relaxed italic text-center">
+                            "Your portfolio is optimized for moderate-high growth according to your risk profile."
+                        </p>
+</div>
+</div>
+</div>
+<!-- Transactions Section -->
+<div class="rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h3 class="text-lg font-bold">Recent History</h3>
+<a class="text-primary text-sm font-semibold hover:underline" href="#">View All</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+<th class="px-6 py-4 font-medium">Transaction</th>
+<th class="px-6 py-4 font-medium">Date</th>
+<th class="px-6 py-4 font-medium">Status</th>
+<th class="px-6 py-4 font-medium text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+<span class="material-symbols-outlined text-sm">arrow_downward</span>
+</div>
+<span class="text-sm font-medium">Deposit from Bank Account</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 24, 2023</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 text-[10px] font-bold uppercase rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">Completed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right text-emerald-500">+$25,000.00</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+</div>
+<span class="text-sm font-medium">Investment Buy: VTI ETF</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 21, 2023</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 text-[10px] font-bold uppercase rounded bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">Processed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">-$12,400.00</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+<span class="material-symbols-outlined text-sm">arrow_upward</span>
+</div>
+<span class="text-sm font-medium">Withdrawal to Wallet</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 18, 2023</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 text-[10px] font-bold uppercase rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">Completed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">-$5,000.00</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+<span class="material-symbols-outlined text-sm">payments</span>
+</div>
+<span class="text-sm font-medium">Dividend Payout: Realty Income</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">Oct 15, 2023</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 text-[10px] font-bold uppercase rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">Completed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right text-primary">+$842.15</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,31 @@
+<div style="background-color: #001f3f; color: #ffffff; font-family: 'Inter', sans-serif; padding: 40px; border-radius: 8px; border: 1px solid #d4af35;">
+  <h1 style="color: #d4af35; border-bottom: 2px solid #d4af35; padding-bottom: 10px;">Guía de Lanzamiento y Configuración Dinámica de OpenInvertir</h1>
+  
+  <p>Esta guía detalla los pasos técnicos y de marketing para lanzar tu plataforma y cómo gestionar los datos para que cada usuario vea su propia información desde cero.</p>
+
+  <h2 style="color: #d4af35;">1. Configuración de Valores Dinámicos</h2>
+  <p>Para que cada usuario vea su propio saldo y transacciones, necesitas conectar el diseño (Frontend) con una Base de Datos (Backend).</p>
+  <ul>
+    <li><strong>Base de Datos (PostgreSQL):</strong> Debes crear tablas para <em>Usuarios</em>, <em>Portafolios</em> e <em>Inversiones</em>.</li>
+    <li><strong>Lógica de Inicio:</strong> Cuando un usuario nuevo se registra, su balance en la base de datos se crea como <strong>$0.00</strong>. El Dashboard leerá este valor automáticamente.</li>
+  </ul>
+
+  <h2 style="color: #d4af35;">2. Paso a Paso para el Lanzamiento Técnico</h2>
+  <ol>
+    <li><strong>Obtén el Código:</strong> Usa el botón <strong>&lt;/&gt; View Code</strong> en Stitch para descargar el HTML y CSS.</li>
+    <li><strong>Alojamiento (Hosting):</strong> Sube tu web a plataformas como <strong>Vercel</strong> o <strong>Netlify</strong>.</li>
+    <li><strong>Seguridad:</strong> Configura un certificado SSL para que tu sitio sea <code>https://</code>, transmitiendo confianza.</li>
+  </ol>
+
+  <h2 style="color: #d4af35;">3. Estrategia en Redes Sociales</h2>
+  <ul>
+    <li><strong>Instagram/TikTok:</strong> Muestra videos cortos del Dashboard funcionando (puedes grabar tu pantalla navegando por los diseños que creamos).</li>
+    <li><strong>LinkedIn:</strong> Publica sobre la misión de la empresa y la seguridad de la plataforma.</li>
+    <li><strong>Facebook:</strong> Crea anuncios dirigidos a personas interesadas en "Finanzas" y "Emprendimiento".</li>
+  </ul>
+
+  <h2 style="color: #d4af35;">4. Cómo ajustar valores "Desde Cero"</h2>
+  <p>En el código que descargues, verás valores como <code>$124,592.00</code>. Tu programador deberá reemplazar esos números fijos por variables (ej: <code>{userBalance}</code>) que se conecten a la base de datos.</p>
+  
+  <p style="margin-top: 30px; font-style: italic; color: #d4af35;">OpenInvertir está lista visualmente. El siguiente paso es el desarrollo técnico para darle vida a estos datos.</p>
+</div>

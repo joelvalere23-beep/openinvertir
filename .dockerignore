@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+*.log
+docker-compose.yml
+.github
+.vscode
+*.json
+!package.json
+!tsconfig.json
+!package-lock.json
+firebase-key.json
+openinvertir-firebase-adminsdk-fbsvc-a513d3621e.json

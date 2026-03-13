@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OpenInvertir - Profile Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201d12",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-nav { background-color: rgba(212, 175, 53, 0.1); border-left: 4px solid #d4af35; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="w-72 border-r border-primary/10 bg-background-light dark:bg-background-dark hidden lg:flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined font-bold">account_balance_wallet</span>
+</div>
+<span class="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100">OpenInvertir</span>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">pie_chart</span>
+<span class="font-medium text-sm">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-medium text-sm">Market</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-medium text-sm">Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 active-nav text-primary rounded-r-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="p-6">
+<div class="bg-primary/10 rounded-xl p-4 border border-primary/20">
+<p class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Current Plan</p>
+<p class="text-sm font-semibold dark:text-white mb-3">Premium Executive</p>
+<button class="w-full py-2 bg-primary text-background-dark font-bold text-xs rounded-lg hover:brightness-110 transition-all">
+                    UPGRADE PLAN
+                </button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Header -->
+<header class="h-20 border-b border-primary/10 flex items-center justify-between px-8 bg-background-light dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Settings</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-semibold">Account &amp; Preferences</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full"></span>
+</button>
+<div class="h-8 w-px bg-primary/10"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-none">Alex Rivera</p>
+<p class="text-[10px] text-primary font-bold uppercase tracking-tighter">Gold Member</p>
+</div>
+<div class="size-10 rounded-full border-2 border-primary/30 p-0.5">
+<img alt="User Profile Avatar" class="rounded-full w-full h-full object-cover" data-alt="Corporate headshot of a smiling male executive" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi2BbMquV4fIUHcXZ-Z8m5wijbh8ZgQgEjgxLF8FCNRno0MvYWmKW1l8yMNTqzhpUSb_MBxLzv-09uIh0UMVWtHSiQ8wkkkiuZ0RIbhk2RqnEnV96CXjaZH1xJRZ7viNXQdVyaBaTlOgZlnQXOuyyZ6nlCuD_KpW-1_xCtb1cyZEzXSeJQGOQWaNP3xc2a8P9EqNWx7HvQzjhY8AesLXfFLZgY2gpWC5Fv4jwThnTvz-Bft6ukMZRsVj-mIIPtAHN2O6ghjZmyEtQ"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Scrollable Area -->
+<div class="p-8 max-w-5xl mx-auto w-full space-y-8">
+<!-- Profile Overview -->
+<section class="bg-white dark:bg-primary/5 rounded-2xl border border-primary/10 overflow-hidden">
+<div class="h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-transparent flex items-end p-8">
+</div>
+<div class="px-8 pb-8 -mt-12 flex flex-col md:flex-row items-end gap-6">
+<div class="relative">
+<img alt="Large User Avatar" class="size-32 rounded-2xl border-4 border-background-dark object-cover shadow-2xl" data-alt="Detailed professional profile picture of a business person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9HGaG2R2ydXT8S9RrBL5XkmbwfbQXFEab2RF_TJ2tSqKTuwIC9UGziNxy-qgmQDfPwXLIbeu41kYk_TcdrHyMECt_rBgESLogKj0h-PIW3YeM3ba_0ZZoQpO0rUrO3dTG-3qbcqVQONpXDjEx2_A1zOdyvbYTpkkaM2Yh7Mgu7QHblTDzthd3H1B6ZlanF6dOOt-9YfNrCBmgTliJKRpYURe9SNdrJYN8DpHPUcrxcE65s-LdWMUawpzKzCeK-IG2bOqUeIxifVM"/>
+<button class="absolute bottom-2 right-2 size-8 bg-primary text-background-dark rounded-lg flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm">photo_camera</span>
+</button>
+</div>
+<div class="flex-1 pb-2">
+<h2 class="text-3xl font-black text-slate-900 dark:text-slate-100">Alex Rivera</h2>
+<div class="flex flex-wrap gap-4 mt-2">
+<span class="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase">
+<span class="material-symbols-outlined text-xs">verified</span> Verified Investor
+                            </span>
+<span class="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full uppercase">
+<span class="material-symbols-outlined text-xs">calendar_today</span> Joined June 2022
+                            </span>
+</div>
+</div>
+<div class="pb-2">
+<button class="px-6 py-2.5 bg-primary text-background-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(212,175,53,0.3)] transition-all">
+                            Save Changes
+                        </button>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Main Columns -->
+<div class="md:col-span-2 space-y-8">
+<!-- Personal Information -->
+<div class="bg-white dark:bg-primary/5 p-6 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary">person</span>
+<h3 class="text-xl font-bold">Personal Information</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+<input class="w-full bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3 focus:ring-primary focus:border-primary transition-all" type="text" value="Alex Rivera"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Email Address</label>
+<input class="w-full bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3 focus:ring-primary focus:border-primary transition-all" type="email" value="alex.rivera@openinvertir.com"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Phone Number</label>
+<input class="w-full bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3 focus:ring-primary focus:border-primary transition-all" type="tel" value="+1 (555) 0123-4567"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Country</label>
+<select class="w-full bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3 focus:ring-primary focus:border-primary transition-all">
+<option>United States</option>
+<option>Spain</option>
+<option>Mexico</option>
+<option>Argentina</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Security Settings -->
+<div class="bg-white dark:bg-primary/5 p-6 rounded-2xl border border-primary/10">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary">shield_lock</span>
+<h3 class="text-xl font-bold">Security</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-background-dark/50 rounded-xl border border-primary/5">
+<div>
+<p class="font-bold">Two-Factor Authentication (2FA)</p>
+<p class="text-sm text-slate-500">Secure your account with an extra layer of protection.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="pt-4 border-t border-primary/10">
+<p class="text-xs font-bold text-slate-500 uppercase mb-4">Update Password</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<input class="bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3" placeholder="Current Password" type="password"/>
+<input class="bg-slate-50 dark:bg-background-dark/50 border border-primary/10 rounded-xl px-4 py-3" placeholder="New Password" type="password"/>
+</div>
+<button class="mt-4 text-sm font-bold text-primary hover:underline underline-offset-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">key</span> Reset Security Keys
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Column -->
+<div class="space-y-8">
+<!-- Document Verification Status -->
+<div class="bg-white dark:bg-primary/5 p-6 rounded-2xl border border-primary/10">
+<h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">Compliance Status</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-green-500/20 text-green-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+</div>
+<span class="text-sm font-semibold">Identity (KYC)</span>
+</div>
+<span class="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded">PASSED</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-green-500/20 text-green-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+</div>
+<span class="text-sm font-semibold">GDPR Consent</span>
+</div>
+<span class="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded">ACTIVE</span>
+</div>
+<div class="flex items-center justify-between opacity-60">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">hourglass_empty</span>
+</div>
+<span class="text-sm font-semibold">Tax Residency</span>
+</div>
+<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">Pending</span>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-primary/30 text-primary rounded-xl text-xs font-bold hover:bg-primary/5 transition-colors">
+                            DOWNLOAD TAX REPORTS
+                        </button>
+</div>
+<!-- Notification Preferences -->
+<div class="bg-white dark:bg-primary/5 p-6 rounded-2xl border border-primary/10">
+<h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">Notifications</h3>
+<div class="space-y-6">
+<div>
+<p class="text-xs font-bold text-primary mb-3">MARKET UPDATES</p>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Email Alerts</span>
+<label class="relative inline-flex items-center cursor-pointer scale-90">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Push Notifications</span>
+<label class="relative inline-flex items-center cursor-pointer scale-90">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-primary/10">
+<p class="text-xs font-bold text-primary mb-3">PORTFOLIO ACTIVITY</p>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Weekly Reports</span>
+<label class="relative inline-flex items-center cursor-pointer scale-90">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Account Danger Zone -->
+<div class="p-6 bg-red-500/5 rounded-2xl border border-red-500/20">
+<p class="text-xs font-bold text-red-500 uppercase mb-2">Danger Zone</p>
+<p class="text-sm text-slate-500 mb-4">Deactivate your account and delete all historical data.</p>
+<button class="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
+                            Deactivate Account
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto border-t border-primary/10 py-8 px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-xs">
+<p>© 2024 OpenInvertir Financial Group. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+<a class="hover:text-primary" href="#">Help Center</a>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

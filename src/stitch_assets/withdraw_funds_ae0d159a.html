@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OpenInvertir - Withdraw Funds</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af35",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#121826", // Navy-tinted dark background for professionalism
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-primary/20 px-6 py-4 lg:px-20 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined text-4xl">account_balance_wallet</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">OpenInvertir</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary/30 border-2 border-primary overflow-hidden">
+<img alt="User Profile" data-alt="Professional male user profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDfxzrJcmnpPqMjMTCxirmuXoLTaQ7WDxqsyyOLjBox5hi4gN3WexlAyEU7TW68Qbjdz-m3eKtjs0OmmZer54FapGTE4fLWXaqK6a9kgzPxPhuYxJRqBBlRXdmXakd8vwJPlU2WrLPtOsTqDOl15lKTKBoQ_Db5way5zHq1xMJCEx8w86RAINT2MfH3cBeYlwYpDTaIhuo0qxY6-FTE7Xu8KwjenuiHv4Ac-a74j2ftkytAYDyXLKMK9js_loH9dyXQSd6SUPYodU"/>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+<!-- Page Title Section -->
+<div class="mb-8">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white">Withdraw Funds</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-2">Securely transfer your earnings to your bank or digital wallet.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Form & Balance -->
+<div class="lg:col-span-2 space-y-6">
+<!-- Balance Card -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-[#b38f2a] p-8 text-white shadow-xl">
+<div class="relative z-10">
+<p class="text-sm font-medium opacity-90 uppercase tracking-wider">Available Balance</p>
+<h3 class="text-4xl font-bold mt-1">$12,450.00</h3>
+<div class="mt-4 flex gap-2">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20">
+<span class="material-symbols-outlined text-xs mr-1">verified</span> Verified Account
+                                    </span>
+</div>
+</div>
+<div class="absolute top-[-20%] right-[-10%] opacity-10">
+<span class="material-symbols-outlined text-[180px]">payments</span>
+</div>
+</div>
+<!-- Withdrawal Form -->
+<div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Withdrawal Amount</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-slate-500">$</span>
+</div>
+<input class="block w-full pl-7 pr-12 py-4 bg-background-light dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary focus:border-primary text-lg font-semibold" placeholder="0.00" step="0.01" type="number"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+<button class="text-xs font-bold text-primary hover:underline" type="button">MAX</button>
+</div>
+</div>
+<p class="mt-2 text-xs text-slate-500">Minimum withdrawal: $10.00 • Transaction fee: $0.00</p>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Destination Account</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Bank Option -->
+<label class="relative flex items-center p-4 cursor-pointer rounded-lg border-2 border-primary bg-primary/5">
+<input checked="" class="sr-only" name="destination" type="radio"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+<div>
+<p class="font-semibold text-sm">Chase Bank</p>
+<p class="text-xs text-slate-500">Ending in •••• 4291</p>
+</div>
+</div>
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+</label>
+<!-- Crypto Option -->
+<label class="relative flex items-center p-4 cursor-pointer rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-primary/50 transition-all">
+<input class="sr-only" name="destination" type="radio"/>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400">currency_bitcoin</span>
+<div>
+<p class="font-semibold text-sm">BTC Wallet</p>
+<p class="text-xs text-slate-500">bc1q...x9zj</p>
+</div>
+</div>
+</label>
+</div>
+<button class="mt-4 flex items-center text-sm font-medium text-primary hover:text-primary/80" type="button">
+<span class="material-symbols-outlined text-sm mr-1">add_circle</span> Add new method
+                                    </button>
+</div>
+<button class="w-full py-4 bg-primary hover:bg-primary/90 text-background-dark font-bold rounded-lg transition-all shadow-lg flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">lock</span>
+                                    Confirm Withdrawal
+                                </button>
+</form>
+</div>
+</div>
+<!-- Right Column: Recent Activity -->
+<div class="lg:col-span-1">
+<div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm sticky top-24">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-lg">Recent History</h3>
+<button class="text-xs font-semibold text-primary hover:underline">View All</button>
+</div>
+<div class="space-y-6">
+<!-- Transaction Item 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500">south_east</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Bank Withdrawal</p>
+<p class="text-xs text-slate-500">Oct 24, 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 dark:text-white">-$1,200.00</p>
+<p class="text-[10px] font-bold text-green-500 uppercase">Completed</p>
+</div>
+</div>
+<!-- Transaction Item 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500">south_east</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Wallet Payout</p>
+<p class="text-xs text-slate-500">Oct 18, 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 dark:text-white">-$450.00</p>
+<p class="text-[10px] font-bold text-green-500 uppercase">Completed</p>
+</div>
+</div>
+<!-- Transaction Item 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">pending</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Bank Withdrawal</p>
+<p class="text-xs text-slate-500">Oct 12, 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 dark:text-white">-$2,500.00</p>
+<p class="text-[10px] font-bold text-primary uppercase">Processing</p>
+</div>
+</div>
+</div>
+<div class="mt-8 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        Withdrawals are processed within 24 hours. For security reasons, large amounts may require manual verification.
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar for Mobile -->
+<nav class="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 flex justify-between items-center sticky bottom-0">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-[10px]">Invest</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined font-bold">account_balance_wallet</span>
+<span class="text-[10px] font-bold">Wallet</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+</div>
+</div>
+</body></html>

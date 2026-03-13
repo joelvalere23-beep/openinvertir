@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OpenInvertir - Order Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#070c18',
+              900: '#0b1426',
+              800: '#141e33',
+              700: '#1e293b',
+            },
+            gold: {
+              400: '#e5c05e',
+              500: '#d4af35',
+              600: '#b08d2a',
+            },
+            success: '#10b981',
+            danger: '#ef4444',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-glassmorphism">
+    .glass-notification {
+      background: rgba(11, 20, 38, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 53, 0.3);
+      box-shadow: 0 0 20px rgba(212, 175, 53, 0.1);
+    }
+    
+    .receipt-jagged {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+      clip-path: polygon(0% 0%, 100% 0%, 100% 98%, 98% 100%, 96% 98%, 94% 100%, 92% 98%, 90% 100%, 88% 98%, 86% 100%, 84% 98%, 82% 100%, 80% 98%, 78% 100%, 76% 98%, 74% 100%, 72% 98%, 70% 100%, 68% 98%, 66% 100%, 64% 98%, 62% 100%, 60% 98%, 58% 100%, 56% 98%, 54% 100%, 52% 98%, 50% 100%, 48% 98%, 46% 100%, 44% 98%, 42% 100%, 40% 98%, 38% 100%, 36% 98%, 34% 100%, 32% 98%, 30% 100%, 28% 98%, 26% 100%, 24% 98%, 22% 100%, 20% 98%, 18% 100%, 16% 98%, 14% 100%, 12% 98%, 10% 100%, 8% 98%, 6% 100%, 4% 98%, 2% 100%, 0% 98%);
+    }
+
+    /* Custom scrollbar for side panel */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0b1426;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-200 font-sans selection:bg-gold-500/30">
+<!-- BEGIN: Main Layout -->
+<div class="flex min-h-screen relative overflow-hidden">
+<!-- BEGIN: Main Navigation -->
+<nav class="w-full h-16 border-b border-slate-800 bg-navy-900/50 backdrop-blur-md fixed top-0 z-50 px-8 flex items-center justify-between">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-2" data-purpose="logo">
+<div class="w-8 h-8 bg-gold-500 rounded flex items-center justify-center">
+<svg class="w-5 h-5 text-navy-900" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"></path></svg>
+</div>
+<span class="text-xl font-bold tracking-tight text-white">OpenInvertir</span>
+</div>
+<div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
+<a class="hover:text-gold-400 transition-colors" href="#">Dashboard</a>
+<a class="text-gold-500 border-b-2 border-gold-500 py-5" href="#">Portfolio</a>
+<a class="hover:text-gold-400 transition-colors" href="#">Markets</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-slate-400 hover:text-white relative">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="absolute top-0 right-0 w-2 h-2 bg-gold-500 rounded-full border-2 border-navy-900"></span>
+</button>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-800">
+<div class="text-right">
+<p class="text-sm font-semibold text-white">Alex Rivera</p>
+<p class="text-[10px] uppercase tracking-wider text-gold-500">Pro Account</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden border-2 border-gold-500/50">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANFdP1Cg0Unh9NSxnJWb0gPP1oaqCRa-wBn64TgigZzMjuQAVWBQcH1r4ngFGlGhoI8-bczAUL6icYG02XwjucNs7YuB8nJU40fVQxyMA90xO3ws3fL8e_zZBn9ys0yTsDLr4mhRAwVhIRIt1dNvVhO2jSFC1Lf8eGoEJEbnz0pWrYeeDgOlxG9POoAoy2vG3gdO21TMsRENvlLvQdd52G4nfg3CXzTOfyIaTlrl8qaq-9bvXZSviq_aZnEJtuDj4-NYUuw_xWaus"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- END: Main Navigation -->
+<!-- BEGIN: Dashboard Content -->
+<main class="flex-1 mt-16 p-8 pr-[420px] max-w-full">
+<!-- BEGIN: Premium Notification -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-xl">
+<div class="glass-notification rounded-xl p-4 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center text-success">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div>
+<h4 class="font-bold text-white text-sm">Order Filled</h4>
+<p class="text-xs text-slate-400">5.0000 ETH bought at <span class="text-white">$3,420.50</span></p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-gold-500 text-xs font-bold hover:text-gold-400 transition-colors uppercase tracking-widest">View Details</button>
+<button class="text-slate-500 hover:text-white">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- END: Premium Notification -->
+<div class="flex items-end justify-between mb-8 mt-4">
+<div>
+<h1 class="text-3xl font-bold text-white mb-1">Order Management</h1>
+<p class="text-slate-400">Monitor your active positions and trade history.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 rounded-lg bg-navy-800 border border-slate-700 text-sm font-semibold hover:bg-navy-700 transition-all flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            Download Statement
+          </button>
+<button class="px-5 py-2.5 rounded-lg bg-gold-500 text-navy-950 text-sm font-bold hover:bg-gold-400 transition-all flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            New Order
+          </button>
+</div>
+</div>
+<!-- BEGIN: Key Metrics -->
+<div class="grid grid-cols-4 gap-4 mb-10">
+<div class="bg-navy-900/40 border border-slate-800 p-5 rounded-xl">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Total Open Orders</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-white">12</span>
+<span class="text-xs text-gold-500 font-medium">+2 today</span>
+</div>
+</div>
+<div class="bg-navy-900/40 border border-slate-800 p-5 rounded-xl">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Pending Value</p>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-white">$42,850</span>
+<span class="text-xs text-slate-500 font-medium">USD</span>
+</div>
+</div>
+<div class="bg-navy-900/40 border border-slate-800 p-5 rounded-xl">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Active Margin</p>
+<div class="flex items-center gap-3">
+<span class="text-2xl font-bold text-white">x10</span>
+<div class="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-[65%] h-full bg-gold-500 rounded-full shadow-[0_0_8px_rgba(212,175,53,0.5)]"></div>
+</div>
+</div>
+</div>
+<div class="bg-navy-900/40 border border-slate-800 p-5 rounded-xl">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Unrealized PNL</p>
+<div class="flex items-center gap-2">
+<span class="text-2xl font-bold text-success">+$1,240</span>
+<svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<!-- END: Key Metrics -->
+<!-- BEGIN: Orders Table Section -->
+<section>
+<div class="flex gap-8 border-b border-slate-800 mb-6">
+<button class="pb-4 text-sm font-bold text-gold-500 border-b-2 border-gold-500">Open Orders (4)</button>
+<button class="pb-4 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors">Order History</button>
+<button class="pb-4 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors">Trade Log</button>
+</div>
+<div class="bg-navy-900/30 border border-slate-800 rounded-xl overflow-hidden">
+<table class="w-full text-left text-sm border-collapse">
+<thead class="bg-navy-900/50 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+<tr>
+<th class="px-6 py-4">Asset / Pair</th>
+<th class="px-6 py-4">Type</th>
+<th class="px-6 py-4">Side</th>
+<th class="px-6 py-4">Price</th>
+<th class="px-6 py-4">Amount</th>
+<th class="px-6 py-4">Filled</th>
+<th class="px-6 py-4 text-right">Value</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-800/50">
+<!-- BTC Row -->
+<tr class="hover:bg-navy-800/30 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M23.64 14.904c-1.286 5.16-6.544 8.288-11.703 7.003C6.776 20.622 3.65 15.364 4.935 10.204c1.285-5.16 6.544-8.289 11.703-7.003 5.16 1.285 8.288 6.543 7.002 11.703zm-4.322-3.085c.312-2.083-1.272-3.203-3.437-3.95l.703-2.818-1.715-.428-.685 2.747c-.45-.113-.912-.22-1.37-.326l.69-2.766-1.714-.428-.703 2.818c-.373-.085-.74-.17-1.096-.26l-2.365-.59-.456 1.832s1.272.292 1.246.31c.694.173.82.632.798.996l-.8 3.207c.048.012.11.03.178.058l-.18-.045-1.12 4.492c-.085.21-.302.526-.79.404.017.025-1.246-.31-1.246-.31l-.85 1.96 2.23.556c.415.104.823.21 1.22.31l-.71 2.85 1.713.428.704-2.822c.467.127.922.246 1.368.358l-.702 2.814 1.714.428.71-2.85c2.925.554 5.126.33 6.052-2.316.746-2.13-.036-3.36-1.576-4.162 1.12-.26 1.964-.997 2.19-2.52z"></path></svg>
+</div>
+<div>
+<div class="font-bold text-white">BTC/USDT</div>
+<div class="text-[10px] text-slate-500">Dec 20, 14:32</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-300">Limit</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 rounded bg-success/10 text-success text-[10px] font-bold">BUY</span>
+</td>
+<td class="px-6 py-5 font-medium">$64,230.00</td>
+<td class="px-6 py-5">
+<div class="font-medium text-white">0.4500</div>
+<div class="text-[10px] text-slate-500">BTC</div>
+</td>
+<td class="px-6 py-5">
+<div class="w-32">
+<div class="flex justify-between text-[10px] mb-1">
+<span class="text-gold-500 font-bold">45%</span>
+<span class="text-slate-500">0.20 BTC</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-[45%] h-full bg-gold-500"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-white">$28,903.50</td>
+</tr>
+<!-- ETH Row (Focus) -->
+<tr class="bg-navy-800/40 border-l-4 border-gold-500 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.37 4.35zm.056-17.97L4.63 12.32l7.37 4.35 7.37-4.35L12 0z"></path></svg>
+</div>
+<div>
+<div class="font-bold text-white">ETH/USDT</div>
+<div class="text-[10px] text-slate-500">Dec 20, 12:15</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-300">Market</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 rounded bg-danger/10 text-danger text-[10px] font-bold">SELL</span>
+</td>
+<td class="px-6 py-5 font-medium">$3,420.50</td>
+<td class="px-6 py-5">
+<div class="font-medium text-white">5.0000</div>
+<div class="text-[10px] text-slate-500">ETH</div>
+</td>
+<td class="px-6 py-5">
+<div class="w-32">
+<div class="flex justify-between text-[10px] mb-1">
+<span class="text-success font-bold">100%</span>
+<span class="text-slate-500">5.00 ETH</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-full h-full bg-success"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-white">$17,102.50</td>
+</tr>
+<!-- SOL Row -->
+<tr class="hover:bg-navy-800/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-500">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M4.33 8.33h17.14l-2.43 2.43H1.9l2.43-2.43zm15.34 7.34H2.53l2.43-2.43h17.14l-2.43 2.43zm-2.43-9.77H2.53L1.9 6.5h17.14l-1.87-1.87z"></path></svg>
+</div>
+<div>
+<div class="font-bold text-white">SOL/USDT</div>
+<div class="text-[10px] text-slate-500">Dec 19, 09:44</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-slate-300">Stop Limit</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 rounded bg-success/10 text-success text-[10px] font-bold">BUY</span>
+</td>
+<td class="px-6 py-5 font-medium">$145.20</td>
+<td class="px-6 py-5">
+<div class="font-medium text-white">100</div>
+<div class="text-[10px] text-slate-500">SOL</div>
+</td>
+<td class="px-6 py-5">
+<div class="w-32">
+<div class="flex justify-between text-[10px] mb-1">
+<span class="text-slate-500 font-bold">0%</span>
+<span class="text-slate-600">0 SOL</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-0 h-full bg-gold-500"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-white">$14,520.00</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 bg-navy-950/50 flex items-center justify-between border-t border-slate-800">
+<p class="text-xs text-slate-500">Showing 3 of 42 orders</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded bg-navy-800 text-xs font-semibold text-slate-400 hover:text-white disabled:opacity-50">Previous</button>
+<button class="px-3 py-1.5 rounded bg-navy-800 text-xs font-semibold text-slate-400 hover:text-white">Next</button>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Orders Table Section -->
+</main>
+<!-- END: Dashboard Content -->
+<!-- BEGIN: Order Details Side Panel -->
+<aside class="fixed right-0 top-0 bottom-0 w-[400px] bg-navy-900 border-l border-slate-800 z-40 flex flex-col pt-16">
+<div class="p-6 border-b border-slate-800 flex items-center justify-between">
+<h2 class="text-lg font-bold text-white">Order Details</h2>
+<button class="text-slate-500 hover:text-white">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 pb-32">
+<!-- Order Summary -->
+<div class="text-center" data-purpose="status-header">
+<div class="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center text-success mx-auto mb-4 border-2 border-success/30">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-white mb-1">Market Sell Completed</h3>
+<p class="text-xs text-slate-500 tracking-wider">Transaction ID: #INV-9902-881</p>
+</div>
+<!-- Details Grid -->
+<div class="space-y-4">
+<div class="flex justify-between text-sm py-1">
+<span class="text-slate-500">Pair</span>
+<span class="text-white font-bold">ETH/USDT</span>
+</div>
+<div class="flex justify-between text-sm py-1">
+<span class="text-slate-500">Filled Price</span>
+<span class="text-white font-semibold">$3,420.50</span>
+</div>
+<div class="flex justify-between text-sm py-1">
+<span class="text-slate-500">Amount</span>
+<span class="text-white font-semibold">5.0000 ETH</span>
+</div>
+<div class="pt-4 space-y-2">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Fees &amp; Deductions</p>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Commission (0.1%)</span>
+<span class="text-danger">-$17.10</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Network Fee</span>
+<span class="text-danger">-$2.40</span>
+</div>
+<div class="flex justify-between text-xs font-bold border-t border-slate-800/50 pt-2">
+<span class="text-slate-500">Total Deducted</span>
+<span class="text-danger">-$19.50</span>
+</div>
+</div>
+<div class="pt-6 flex justify-between items-center">
+<span class="text-slate-500 font-medium">Total Credit</span>
+<span class="text-2xl font-bold text-success">$17,102.50</span>
+</div>
+</div>
+<!-- Timeline -->
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-6">Timeline</p>
+<div class="space-y-6 relative ml-2">
+<div class="absolute left-0 top-0 bottom-0 w-px bg-slate-800"></div>
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-success"></div>
+<p class="text-sm font-bold text-white leading-none">Order Placed</p>
+<p class="text-[10px] text-slate-500 mt-1">Dec 20, 12:15:02</p>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-success"></div>
+<p class="text-sm font-bold text-white leading-none">Order Executed</p>
+<p class="text-[10px] text-slate-500 mt-1">Dec 20, 12:15:42</p>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-[-4px] top-1.5 w-2 h-2 rounded-full bg-gold-500"></div>
+<p class="text-sm font-bold text-white leading-none">Settled</p>
+<p class="text-[10px] text-slate-500 mt-1">Dec 20, 12:16:05</p>
+</div>
+</div>
+</div>
+<!-- Blockchain Details -->
+<div class="bg-navy-950/80 rounded-xl border border-slate-800 p-5">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">Blockchain Details</p>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] text-slate-500 mb-1">Transaction ID (TXID)</p>
+<div class="flex items-center justify-between bg-navy-900 rounded p-3 border border-slate-800">
+<code class="text-xs text-slate-300">0x4f2c...9b12881a</code>
+<button class="text-gold-500 hover:text-white">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</div>
+<a class="flex items-center justify-center gap-2 text-xs text-gold-500 font-semibold hover:underline" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              View on Etherscan
+            </a>
+</div>
+</div>
+<!-- Digital Receipt -->
+<div class="bg-white text-navy-900 rounded receipt-jagged p-6 pt-10" data-purpose="digital-receipt">
+<div class="text-center border-b border-slate-200 pb-4 mb-4">
+<h4 class="font-black text-xs uppercase tracking-tighter">OpenInvertir Official Receipt</h4>
+<p class="text-[8px] text-slate-500">Dec 20, 2023 • 12:15:42 UTC</p>
+</div>
+<div class="space-y-2 text-[10px]">
+<div class="flex justify-between">
+<span class="text-slate-500">Operation</span>
+<span class="font-bold uppercase">Sell Market</span>
+</div>
+<div class="flex justify-between">
+<span class="text-slate-500">Commission (0.1%)</span>
+<span class="font-bold">-$17.10</span>
+</div>
+<div class="flex justify-between">
+<span class="text-slate-500">Network Fee</span>
+<span class="font-bold">-$2.40</span>
+</div>
+</div>
+<div class="mt-8 border border-slate-100 p-4 rounded flex flex-col items-center gap-3">
+<img alt="Receipt QR" class="w-24 h-24 opacity-80 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYsnu8oQLvZEYKikzdJQSj8ZQESVJjlPJXLAzKst7z-PKV5LzRsouXsx-TDgh5S7ul7Qlm50WhSOz5fnUzVCO8aP-IxVlRNQqg1CZPE6_-acDPdPJ2ijsFDXT1srRICpD23r1Ngw7cdK73IMOcbvaJJMZyd_owOZs0lDKEOhLWCc2IHEEDvpcbqBkwXLmTKu_-noEbZ0TuZdo61eJWe3duCJc9K8mTNiGMcc3BnE4A1ATPG5xL3Je2GkWEY8xKtGQieWV2z-voQd0"/>
+<p class="text-[7px] text-slate-400 text-center leading-relaxed max-w-[180px]">
+              Scan to verify this transaction on-chain via the OpenInvertir node network. Authenticated Receipt #881-A.
+            </p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-navy-900 border-t border-slate-800 flex gap-4">
+<button class="flex-1 px-4 py-3 rounded-lg bg-navy-800 border border-slate-700 text-sm font-bold text-white flex items-center justify-center gap-2 hover:bg-navy-700">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Receipt PDF
+        </button>
+<button class="flex-1 px-4 py-3 rounded-lg bg-gold-500 text-navy-950 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gold-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Share Trade
+        </button>
+</div>
+</aside>
+<!-- END: Order Details Side Panel -->
+</div>
+<!-- END: Main Layout -->
+</body></html>
