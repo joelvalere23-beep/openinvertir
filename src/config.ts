@@ -3,27 +3,46 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// En la nube (Railway), algunas variables pueden pasarse de forma distinta.
+// Hacemos el esquema más flexible para evitar que el bot se detenga por variables opcionales.
 const configSchema = z.object({
     TELEGRAM_BOT_TOKEN: z.string().min(1, "El token del bot de Telegram es obligatorio"),
-    TELEGRAM_ALLOWED_USER_IDS: z.string().min(1, "Debe haber al menos un ID de usuario permitido"),
-    TELEGRAM_VIP_GROUP_ID: z.string().min(1, "El ID del grupo VIP es obligatorio"),
+    TELEGRAM_VIP_GROUP_ID: z.string().default(""), // Opcional para arranque básico
     GROQ_API_KEY: z.string().min(1, "La clave de API de Groq es obligatoria"),
-    OPENROUTER_API_KEY: z.string().min(1, "La clave de API de OpenRouter es obligatoria"),
+    OPENROUTER_API_KEY: z.string().optional(),
     OPENROUTER_MODEL: z.string().default("openrouter/free"),
-    FIREBASE_SERVICE_ACCOUNT_PATH: z.string().min(1, "La ruta de la cuenta de servicio de Firebase es obligatoria"),
+    FIREBASE_SERVICE_ACCOUNT_PATH: z.string().default("firebase-key.json"),
+    FIREBASE_SERVICE_ACCOUNT_JSON: z.string().optional(),
 });
 
-const _config = configSchema.safeParse(process.env);
+const parseResult = configSchema.safeParse(process.env);
 
-if (!_config.success) {
-    console.error("❌ Archivo .env incompleto o incorrecto:");
-    for (const error of _config.error.issues) {
-        console.error(`- ${error.path.join(".")}: ${error.message}`);
+if (!parseResult.success) {
+    console.warn("⚠️ Advertencia: Algunas variables de entorno faltan o son incorrectas:");
+    for (const error of parseResult.error.issues) {
+        console.warn(`- ${error.path.join(".")}: ${error.message}`);
     }
-    process.exit(1);
+    // No salimos con error 1 aquí si tenemos lo mínimo para funcionar (Token + Groq)
+    if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.GROQ_API_KEY) {
+        console.error("❌ ERROR CRÍTICO: Faltas variables esenciales (TELEGRAM_BOT_TOKEN o GROQ_API_KEY). El bot no puede iniciar.");
+        process.exit(1);
+    }
 }
 
-export const env = _config.data;
-export const allowedUserIds = env.TELEGRAM_ALLOWED_USER_IDS.split(",")
+export const env = parseResult.success 
+    ? parseResult.data 
+    : {
+        TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || "",
+        TELEGRAM_VIP_GROUP_ID: process.env.TELEGRAM_VIP_GROUP_ID || "",
+        GROQ_API_KEY: process.env.GROQ_API_KEY || "",
+        OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+        OPENROUTER_MODEL: process.env.OPENROUTER_MODEL || "openrouter/free",
+        FIREBASE_SERVICE_ACCOUNT_PATH: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "firebase-key.json",
+        FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+    };
+
+// Whitelist opcional (si no se provee, no se usa)
+const rawAllowedIds = process.env.TELEGRAM_ALLOWED_USER_IDS || "";
+export const allowedUserIds = rawAllowedIds.split(",")
     .map((id) => parseInt(id.trim(), 10))
     .filter((id) => !isNaN(id));

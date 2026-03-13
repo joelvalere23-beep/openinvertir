@@ -14,39 +14,54 @@ server.listen(PORT, () => {
     console.log(`✅ Servidor de salud activo en puerto ${PORT}`);
 });
 
-
 async function main() {
-    console.log("Iniciando Openinvertit...");
+    console.log("🚀 Iniciando Openinvertit en modo Cloud...");
 
-    console.log("Inicializando base de datos...");
-    await initDb();
+    try {
+        console.log("📂 Inicializando base de datos...");
+        await initDb();
+    } catch (e) {
+        console.error("❌ Error al inicializar base de datos:", e);
+        // Intentamos seguir aunque la BD falle (el bot avisará en los logs)
+    }
 
-    console.log("Iniciando bot de Telegram...");
+    console.log("🤖 Iniciando bot de Telegram...");
     const bot = setupBot();
 
-    console.log("Iniciando cliente de WhatsApp (espera al QR)...");
-    const waClient = setupWhatsApp();
+    try {
+        console.log("📱 Iniciando cliente de WhatsApp...");
+        const waClient = setupWhatsApp();
+        
+        // Manejo de cierre para WhatsApp
+        const cleanup = async () => {
+            console.log("Deteniendo bots...");
+            await bot.stop();
+            await waClient.destroy();
+            const db = await dbPromise;
+            await db.close();
+            process.exit(0);
+        };
 
-    // Manejo correcto de cierre
-    process.once("SIGINT", async () => {
-        console.log("Deteniendo bots...");
-        await bot.stop();
-        await waClient.destroy();
-        console.log("Cerrando conexión a BD...");
-        const db = await dbPromise;
-        await db.close();
-        process.exit(0);
-    });
+        process.once("SIGINT", cleanup);
+        process.once("SIGTERM", cleanup);
 
-    process.once("SIGTERM", async () => {
-        console.log("Deteniendo bots...");
-        await bot.stop();
-        await waClient.destroy();
-        console.log("Cerrando conexión a BD...");
-        const db = await dbPromise;
-        await db.close();
-        process.exit(0);
-    });
+    } catch (e) {
+        console.error("⚠️ No se pudo iniciar el cliente de WhatsApp. El bot de Telegram seguirá funcionando.", e);
+        
+        const cleanup = async () => {
+            console.log("Deteniendo bot de Telegram...");
+            await bot.stop();
+            const db = await dbPromise;
+            await db.close();
+            process.exit(0);
+        };
+
+        process.once("SIGINT", cleanup);
+        process.once("SIGTERM", cleanup);
+    }
 }
 
-main().catch(console.error);
+main().catch(err => {
+    console.error("🔥 ERROR FATAL EN EL ARRANQUE:", err);
+    process.exit(1);
+});
