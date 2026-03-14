@@ -1,8 +1,13 @@
-import { Bot } from "grammy";
+import { Bot, InputFile } from "grammy";
+import axios from "axios";
 import { env } from "../config.js";
 import { whitelistMiddleware } from "./middleware.js";
 import { upsertUser } from "../memory/index.js";
 import { runAgentLoop } from "../agent/loop.js";
+import { transcribeAudio, generateVoice } from "../utils/audio.js";
+import path from "path";
+import fs from "fs-extra";
+import os from "os";
 
 import { TenantConfig } from "../config.js";
 
@@ -28,7 +33,59 @@ export function setupBot(tenant: TenantConfig) {
         }
     });
 
-    // 2. Manejar mensajes de texto
+    // 2. Manejar mensajes de voz
+    bot.on("message:voice", async (ctx) => {
+        try {
+            if (!ctx.from) return;
+
+            await ctx.replyWithChatAction("record_voice");
+
+            // 1. Obtener archivo de voz
+            const file = await ctx.getFile();
+            const fileUrl = `https://api.telegram.org/file/bot${tenant.token}/${file.file_path}`;
+            
+            // 2. Descargar localmente para procesar
+            const tempDir = os.tmpdir();
+            const voicePath = path.join(tempDir, `voice_${Date.now()}.ogg`);
+            
+            const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+            await fs.writeFile(voicePath, response.data);
+
+            // 3. Transcribir a texto
+            const transcribedText = await transcribeAudio(voicePath);
+            
+            if (!transcribedText) {
+                await ctx.reply("Lo siento, no pude entender tu mensaje de voz. ¿Podrías repetirlo?");
+                return;
+            }
+
+            console.log(`🎙️ Voz de ${ctx.from.first_name}: ${transcribedText}`);
+
+            // 4. Pasar al agente
+            const agentResponse = await runAgentLoop(ctx.from.id, transcribedText, tenant.id, tenant.persona);
+
+            // 5. Generar respuesta por voz (opcional si hay API Key)
+            const responseAudioPath = path.join(tempDir, `resp_${Date.now()}.mp3`);
+            const hasVoice = await generateVoice(agentResponse, responseAudioPath);
+
+            if (hasVoice) {
+                await ctx.replyWithVoice(new InputFile(responseAudioPath));
+                // Limpiar temporales
+                await fs.remove(responseAudioPath);
+            } else {
+                await ctx.reply(agentResponse);
+            }
+
+            // Limpiar archivo de entrada
+            await fs.remove(voicePath);
+
+        } catch (error) {
+            console.error(`❌ Error en mensajes de voz (${tenant.id}):`, error);
+            await ctx.reply("Tuve un problema procesando tu mensaje de voz.");
+        }
+    });
+
+    // 3. Manejar mensajes de texto
     bot.on("message:text", async (ctx) => {
         try {
             if (!ctx.from) return;

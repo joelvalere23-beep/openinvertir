@@ -21,6 +21,7 @@ const configSchema = z.object({
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     MS_CLIENT_ID: z.string().optional(),
     MS_CLIENT_SECRET: z.string().optional(),
+    OPENAI_API_KEY: z.string().optional(),
 });
 
 const parseResult = configSchema.safeParse(process.env);
@@ -52,6 +53,7 @@ export const env = parseResult.success
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         MS_CLIENT_ID: process.env.MS_CLIENT_ID,
         MS_CLIENT_SECRET: process.env.MS_CLIENT_SECRET,
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     };
 
 // Procesar tenants
