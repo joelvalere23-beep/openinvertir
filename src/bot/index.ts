@@ -4,9 +4,9 @@ import { env } from "../config.js";
 import { upsertUser } from "../memory/index.js";
 import { runAgentLoop } from "../agent/loop.js";
 import { transcribeAudio, generateVoice } from "../utils/audio.js";
+import os from "os";
 import path from "path";
 import fs from "fs-extra";
-import os from "os";
 
 import { TenantConfig } from "../config.js";
 
@@ -49,9 +49,9 @@ export function setupBot(tenant: TenantConfig) {
             const response = await axios.get(url, { responseType: 'stream' });
             response.data.pipe(writer);
             
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
+            await new Promise<void>((resolve, reject) => {
+                writer.on('finish', () => resolve());
+                writer.on('error', (err: any) => reject(err));
             });
 
             const transcription = await transcribeAudio(voicePath);
@@ -72,12 +72,18 @@ export function setupBot(tenant: TenantConfig) {
             await ctx.reply(agentResponse.text);
             
             if (agentResponse.images && agentResponse.images.length > 0) {
+                console.log(`[Bot] Enviando ${agentResponse.images.length} imágenes...`);
                 for (const imageUrl of agentResponse.images) {
-                    await ctx.replyWithPhoto(imageUrl);
+                    try {
+                        await ctx.replyWithPhoto(imageUrl);
+                    } catch (picError: any) {
+                        console.error("Error enviando foto a Telegram:", picError.message);
+                        await ctx.reply(`No pude mostrar la imagen directamente, pero aquí está el link: ${imageUrl}`);
+                    }
                 }
             }
 
-        } catch (e) {
+        } catch (e: any) {
             console.error(`❌ Error procesando voz:`, e);
             await ctx.reply("Lo siento, tuve un problema al procesar tu audio.");
         } finally {
@@ -106,14 +112,33 @@ export function setupBot(tenant: TenantConfig) {
             await ctx.reply(agentResponse.text);
 
             if (agentResponse.images && agentResponse.images.length > 0) {
+                console.log(`[Bot] Enviando ${agentResponse.images.length} imágenes...`);
                 for (const imageUrl of agentResponse.images) {
-                    await ctx.replyWithPhoto(imageUrl);
+                    try {
+                        await ctx.replyWithPhoto(imageUrl);
+                    } catch (picError: any) {
+                        console.error("Error enviando foto a Telegram:", picError.message);
+                        await ctx.reply(`No pude mostrar la imagen directamente, pero aquí está el link: ${imageUrl}`);
+                    }
                 }
             }
         } catch (error: any) {
-            console.error(`❌ Error texto:`, error);
+            console.error(`❌ ERROR AL PROCESAR MENSAJE en ${tenant.id}:`, error);
             await ctx.reply("Ocurrió un error al procesar tu mensaje. Por favor, inténtalo de nuevo.");
         }
+    });
+
+    // Nuevo: Comando de debug para ver qué está pasando
+    bot.command("debug", async (ctx) => {
+        const info = [
+            `🤖 Bot: ${tenant.name}`,
+            `🆔 Tenant ID: ${tenant.id}`,
+            `👤 Persona: ${tenant.persona ? "Personalizada" : "Por defecto (Openinvertit)"}`,
+            `🔑 Tiene OpenRouter: ${env.OPENROUTER_API_KEY ? "SÍ" : "NO"}`,
+            `🔑 Tiene OpenAI: ${env.OPENAI_API_KEY ? "SÍ" : "NO"}`,
+            `🔑 Tiene Groq: ${env.GROQ_API_KEY ? "SÍ" : "NO"}`,
+        ].join("\n");
+        await ctx.reply(info);
     });
 
     // Iniciar bot

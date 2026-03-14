@@ -1,3 +1,4 @@
+import http from "http";
 import { setupBot } from "./bot/index.js";
 import { setupWhatsApp } from "./whatsapp/index.js";
 import { initDb, dbPromise } from "./db/index.js";
