@@ -75,9 +75,15 @@ export function setupBot(tenant: TenantConfig) {
                 console.log(`[Bot] Enviando ${agentResponse.images.length} imágenes...`);
                 for (const imageUrl of agentResponse.images) {
                     try {
-                        await ctx.replyWithPhoto(imageUrl);
+                        if (imageUrl.startsWith("data:image")) {
+                            const base64Data = imageUrl.split(",")[1];
+                            const buffer = Buffer.from(base64Data, "base64");
+                            await ctx.replyWithPhoto(new InputFile(buffer, "imagen_generada.png"));
+                        } else {
+                            await ctx.replyWithPhoto(imageUrl);
+                        }
                     } catch (picError: any) {
-                        console.error("Error enviando foto a Telegram:", picError.message);
+                        console.error("Error enviando foto a Telegram (Voz):", picError.message);
                         await ctx.reply(`No pude mostrar la imagen directamente, pero aquí está el link: ${imageUrl}`);
                     }
                 }
@@ -115,10 +121,16 @@ export function setupBot(tenant: TenantConfig) {
                 console.log(`[Bot] Enviando ${agentResponse.images.length} imágenes...`);
                 for (const imageUrl of agentResponse.images) {
                     try {
-                        await ctx.replyWithPhoto(imageUrl);
+                        if (imageUrl.startsWith("data:image")) {
+                            const base64Data = imageUrl.split(",")[1];
+                            const buffer = Buffer.from(base64Data, "base64");
+                            await ctx.replyWithPhoto(new InputFile(buffer, "imagen_generada.png"));
+                        } else {
+                            await ctx.replyWithPhoto(imageUrl);
+                        }
                     } catch (picError: any) {
-                        console.error("Error enviando foto a Telegram:", picError.message);
-                        await ctx.reply(`No pude mostrar la imagen directamente, pero aquí está el link: ${imageUrl}`);
+                        console.error("Error enviando foto a Telegram (Texto):", picError.message);
+                        await ctx.reply(`No pude mostrar la imagen directamente por un problema técnico de Telegram, pero aquí está el link: ${imageUrl}`);
                     }
                 }
             }
