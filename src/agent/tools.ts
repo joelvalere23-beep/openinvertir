@@ -212,11 +212,23 @@ export const tools: OpeninvertitTool[] = [
         },
         execute: async (args: { prompt: string }) => {
             try {
-                const openai = new OpenAI({ apiKey: env.GROQ_API_KEY }); // Usamos la misma clave si es de OpenAI, o env.OPENAI_API_KEY si existiera
+                let apiKey = env.OPENAI_API_KEY;
+                let baseURL = undefined;
+                let model = "dall-e-3";
+
+                if (!apiKey && env.OPENROUTER_API_KEY) {
+                    apiKey = env.OPENROUTER_API_KEY;
+                    baseURL = "https://openrouter.ai/api/v1";
+                    model = "openai/dall-e-3";
+                }
+
+                if (!apiKey) return "Error: No hay una API Key configurada para generación de imágenes.";
+
+                const openai = new OpenAI({ apiKey, baseURL });
                 
-                console.log(`🎨 Generando imagen para: ${args.prompt}`);
+                console.log(`🎨 Generando imagen [${model}] para: ${args.prompt}`);
                 const response = await openai.images.generate({
-                    model: "dall-e-3",
+                    model: model as any,
                     prompt: args.prompt,
                     n: 1,
                     size: "1024x1024",

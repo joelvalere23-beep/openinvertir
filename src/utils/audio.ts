@@ -36,17 +36,28 @@ export async function transcribeAudio(audioPath: string): Promise<string> {
  */
 export async function generateVoice(text: string, outputPath: string): Promise<boolean> {
     try {
-        if (!env.OPENAI_API_KEY) {
-            console.warn("⚠️ No se encontró OPENAI_API_KEY. El bot responderá solo con texto.");
+        let apiKey = env.OPENAI_API_KEY;
+        let baseURL = undefined;
+        let model = "tts-1";
+
+        if (!apiKey && env.OPENROUTER_API_KEY) {
+            console.log("🌐 Usando OpenRouter para TTS...");
+            apiKey = env.OPENROUTER_API_KEY;
+            baseURL = "https://openrouter.ai/api/v1";
+            model = "openai/tts-1";
+        }
+
+        if (!apiKey) {
+            console.warn("⚠️ No se encontró clave para TTS (OpenAI o OpenRouter).");
             return false;
         }
 
-        console.log(`🔊 Generando voz para: ${text.substring(0, 50)}...`);
-        const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+        console.log(`🔊 Generando voz [${model}] para: ${text.substring(0, 50)}...`);
+        const openai = new OpenAI({ apiKey, baseURL });
 
         const mp3 = await openai.audio.speech.create({
-            model: "tts-1",
-            voice: "shimmer", // Voz profesional y elocuente
+            model: model as any,
+            voice: "shimmer", 
             input: text,
         });
 
