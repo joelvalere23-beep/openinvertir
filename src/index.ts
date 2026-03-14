@@ -1,12 +1,64 @@
 import { setupBot } from "./bot/index.js";
 import { setupWhatsApp } from "./whatsapp/index.js";
 import { initDb, dbPromise } from "./db/index.js";
-import http from "http";
+import url from "url";
+import { getGoogleTokens } from "./auth/google.js";
+import { getMicrosoftTokens } from "./auth/microsoft.js";
+import { saveTokens } from "./memory/index.js";
 
-// Servidor de salud (Health Check) para mantener vivo el bot en la nube
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('OpenInvertit is running\n');
+// Servidor de salud y OAuth Callbacks
+const server = http.createServer(async (req, res) => {
+    const parsedUrl = url.parse(req.url || "", true);
+    const path = parsedUrl.pathname;
+
+    if (path === "/") {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('OpenInvertit is running\n');
+        return;
+    }
+
+    // Callback de Google
+    if (path === "/auth/google/callback") {
+        const code = parsedUrl.query.code as string;
+        const stateStr = parsedUrl.query.state as string;
+        
+        try {
+            const state = JSON.parse(Buffer.from(stateStr, "base64").toString());
+            const tokens = await getGoogleTokens(code);
+            await saveTokens(state.userId, state.tenantId, "google", tokens);
+            
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end('<h1>✅ ¡Conexión con Google exitosa!</h1><p>Ya puedes cerrar esta ventana y volver al bot.</p>');
+        } catch (e) {
+            console.error("Error en callback de Google:", e);
+            res.writeHead(500);
+            res.end("Error al procesar la autenticación de Google");
+        }
+        return;
+    }
+
+    // Callback de Microsoft
+    if (path === "/auth/microsoft/callback") {
+        const code = parsedUrl.query.code as string;
+        const stateStr = parsedUrl.query.state as string;
+
+        try {
+            const state = JSON.parse(Buffer.from(stateStr, "base64").toString());
+            const response = await getMicrosoftTokens(code);
+            await saveTokens(state.userId, state.tenantId, "microsoft", response.account);
+            
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end('<h1>✅ ¡Conexión con Microsoft exitosa!</h1><p>Ya puedes cerrar esta ventana y volver al bot.</p>');
+        } catch (e) {
+            console.error("Error en callback de Microsoft:", e);
+            res.writeHead(500);
+            res.end("Error al procesar la autenticación de Microsoft");
+        }
+        return;
+    }
+
+    res.writeHead(404);
+    res.end();
 });
 
 const PORT = process.env.PORT || 3000;

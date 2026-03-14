@@ -78,3 +78,20 @@ export async function clearMemory(userId: number, tenantId: string = "main") {
   });
   await batch.commit();
 }
+export async function saveTokens(userId: number, tenantId: string, provider: "google" | "microsoft", tokens: any) {
+  if (!db) return;
+
+  const tokenRef = db.collection("tenants").doc(tenantId).collection("users").doc(userId.toString()).collection("tokens").doc(provider);
+  await tokenRef.set({
+    ...tokens,
+    updated_at: new Date()
+  });
+}
+
+export async function getTokens(userId: number, tenantId: string, provider: "google" | "microsoft") {
+  if (!db) return null;
+
+  const tokenRef = db.collection("tenants").doc(tenantId).collection("users").doc(userId.toString()).collection("tokens").doc(provider);
+  const doc = await tokenRef.get();
+  return doc.exists ? doc.data() : null;
+}

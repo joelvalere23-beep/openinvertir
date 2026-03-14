@@ -16,6 +16,11 @@ const configSchema = z.object({
     // Nuevo: JSON con configuración de múltiples bots para B2B
     // Formato esperado: '[{"name":"Empresa 1","token":"TOKEN1","persona":"Eres el bot de 1..."}]'
     TENANTS_JSON: z.string().default("[]"),
+    // OAuth Ops
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    MS_CLIENT_ID: z.string().optional(),
+    MS_CLIENT_SECRET: z.string().optional(),
 });
 
 const parseResult = configSchema.safeParse(process.env);
@@ -43,6 +48,10 @@ export const env = parseResult.success
         FIREBASE_SERVICE_ACCOUNT_PATH: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "firebase-key.json",
         FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
         TENANTS_JSON: process.env.TENANTS_JSON || "[]",
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        MS_CLIENT_ID: process.env.MS_CLIENT_ID,
+        MS_CLIENT_SECRET: process.env.MS_CLIENT_SECRET,
     };
 
 // Procesar tenants

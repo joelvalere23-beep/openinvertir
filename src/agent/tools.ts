@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { google } from "googleapis";
+import { Client } from "@microsoft/microsoft-graph-client";
 import { Api } from "grammy";
 import { env } from "../config.js";
 
@@ -9,9 +11,121 @@ export interface OpeninvertitTool {
     execute: (args: any, tenantId?: string) => Promise<string> | string;
 }
 
-import { captureLead } from "../crm/leads.js";
+import { getGoogleAuthUrl } from "../auth/google.js";
+import { getMicrosoftAuthUrl } from "../auth/microsoft.js";
+import { getTokens } from "../memory/index.js";
 
 export const tools: OpeninvertitTool[] = [
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "auth_google",
+                description: "Genera un enlace para que el usuario autorice el acceso a su Google Calendar y Gmail.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        userId: { type: "number" }
+                    },
+                    required: ["userId"]
+                },
+            },
+        },
+        execute: async (args: { userId: number }, tenantId: string = "main") => {
+            const url = getGoogleAuthUrl(args.userId, tenantId);
+            return `Por favor, haz clic en el siguiente enlace para autorizar el acceso a tu cuenta de Google: ${url}\n\nUna vez autorizado, podré leer tu agenda y correos.`;
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "auth_microsoft",
+                description: "Genera un enlace para que el usuario autorice el acceso a su Outlook y Calendario de Microsoft.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        userId: { type: "number" }
+                    },
+                    required: ["userId"]
+                },
+            },
+        },
+        execute: async (args: { userId: number }, tenantId: string = "main") => {
+            const url = await getMicrosoftAuthUrl(args.userId, tenantId);
+            return `Por favor, haz clic en el siguiente enlace para autorizar el acceso a tu cuenta de Microsoft: ${url}\n\nUna vez autorizado, podré gestionar tu correo y agenda de Outlook.`;
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "list_calendar_events",
+                description: "Lista los próximos eventos del calendario del usuario (Google o Microsoft).",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        provider: { type: "string", enum: ["google", "microsoft"] },
+                        userId: { type: "number" }
+                    },
+                    required: ["provider", "userId"]
+                },
+            },
+        },
+        execute: async (args: { provider: "google" | "microsoft", userId: number }, tenantId: string = "main") => {
+            const tokens = await getTokens(args.userId, tenantId, args.provider);
+            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}. Por favor, usa el comando de autorización primero.`;
+
+            if (args.provider === "google") {
+                const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+                oauth2Client.setCredentials(tokens);
+                const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+                const res = await calendar.events.list({ calendarId: "primary", timeMin: new Date().toISOString(), maxResults: 5, singleEvents: true, orderBy: "startTime" });
+                const events = res.data.items || [];
+                if (events.length === 0) return "No tienes eventos próximos en Google Calendar.";
+                return `Tus próximos eventos son:\n` + events.map(e => `- ${e.summary} (${new Date(e.start?.dateTime || e.start?.date || "").toLocaleString()})`).join("\n");
+            } else {
+                return "La integración con Microsoft Outlook Calendar está en desarrollo, pero los tokens están guardados.";
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "read_emails",
+                description: "Lee los correos electrónicos más recientes del usuario.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        provider: { type: "string", enum: ["google", "microsoft"] },
+                        userId: { type: "number" }
+                    },
+                    required: ["provider", "userId"]
+                },
+            },
+        },
+        execute: async (args: { provider: "google" | "microsoft", userId: number }, tenantId: string = "main") => {
+            const tokens = await getTokens(args.userId, tenantId, args.provider);
+            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}.`;
+
+            if (args.provider === "google") {
+                const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+                oauth2Client.setCredentials(tokens);
+                const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+                const res = await gmail.users.messages.list({ userId: "me", maxResults: 5 });
+                const messagesBuffer = [];
+                for (const msg of res.data.messages || []) {
+                    const detail = await gmail.users.messages.get({ userId: "me", id: msg.id! });
+                    const subject = detail.data.payload?.headers?.find(h => h.name === "Subject")?.value || "(Sin asunto)";
+                    messagesBuffer.push(`- ${subject}`);
+                }
+                return `Tus correos recientes son:\n` + messagesBuffer.join("\n");
+            } else {
+                return "Lectura de correos de Microsoft en desarrollo.";
+            }
+        }
+    },
     {
         definition: {
             type: "function",
