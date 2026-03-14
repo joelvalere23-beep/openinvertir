@@ -232,14 +232,32 @@ export const tools: OpeninvertitTool[] = [
                     prompt: args.prompt,
                     n: 1,
                     size: "1024x1024",
+                    response_format: "url", // Forzamos URL primero
                 });
 
                 if (!response.data || response.data.length === 0) {
-                    throw new Error("No se recibió información de la imagen generada.");
+                    throw new Error("La API no devolvió datos de imagen.");
                 }
 
-                const imageUrl = response.data[0].url;
-                if (!imageUrl) throw new Error("No se pudo obtener la URL de la imagen.");
+                let imageUrl = response.data[0].url;
+                
+                // Si no hay URL, probamos con b64_json (algunos proveedores de OpenRouter lo prefieren)
+                if (!imageUrl) {
+                    console.log("⚠️ No se recibió URL, intentando con b64_json...");
+                    const b64Response = await openai.images.generate({
+                        model: model as any,
+                        prompt: args.prompt,
+                        n: 1,
+                        size: "1024x1024",
+                        response_format: "b64_json",
+                    });
+                    const b64 = b64Response.data[0].b64_json;
+                    if (b64) {
+                        imageUrl = `data:image/png;base64,${b64}`;
+                    }
+                }
+
+                if (!imageUrl) throw new Error("No se pudo obtener la imagen (ni URL ni Base64).");
 
                 return `IMAGEN_GENERADA|${imageUrl}|${args.prompt}`;
             } catch (e: any) {
