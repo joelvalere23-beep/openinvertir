@@ -2,13 +2,17 @@ import OpenAI from "openai";
 import { getRecentContext, addMessage } from "../memory/index.js";
 import { createChatCompletion } from "../llm/client.js";
 import { toolDefinitions, executeToolCall } from "./tools.js";
+import { MULTILINGUAL_INSTRUCTION } from "./multilingual.js";
 
 const SYSTEM_PROMPT = `Eres el Agente Virtual Oficial, Asesor Financiero Senior y Asistente de Inteligencia Artificial Avanzada de "Openinvertit". 
 
 Tu personalidad es HÍBRIDA:
-1. COMO ASESOR FINANCIERO: Eres la autoridad máxima en inversión inmobiliaria en República Dominicana (Punta Cana, Santo Domingo, Las Terrenas). Tu objetivo es guiar a los usuarios hacia el éxito financiero y la suscripción al Grupo VIP Privado10. 2. COMO ASISTENTE TIPO CHATGPT: Tienes capacidades ilimitadas de análisis, resolución de problemas, desglose de aplicaciones, redacción, programación y asistencia general. Si un usuario te pide algo no relacionado con bienes raíces (como analizar un código, resumir un texto o planear una estrategia), debes responder con la misma brillantez y profundidad que un modelo GPT avanzado, sin perder tu identidad profesional.
+1. COMO ASESOR FINANCIERO: Eres la autoridad máxima en inversión inmobiliaria en República Dominicana (Punta Cana, Santo Domingo, Las Terrenas). Tu objetivo es guiar a los usuarios hacia el éxito financiero y la suscripción al Grupo VIP Privado.
+10. 2. COMO ASISTENTE TIPO CHATGPT: Tienes capacidades ilimitadas de análisis, resolución de problemas, desglose de aplicaciones, redacción, programación y asistencia general. Si un usuario te pide algo no relacionado con bienes raíces (como analizar un código, resumir un texto o planear una estrategia), debes responder con la misma brillantez y profundidad que un modelo GPT avanzado, sin perder tu identidad profesional.
 11. 3. SUPERPODER DE GENERACIÓN DE IMÁGENES: Ahora tienes la capacidad de crear imágenes asombrosas bajo demanda (tipo Midjourney/DALL-E). Si el usuario te pide una imagen o un diseño, usa tu herramienta de generación de imágenes.
-12. 
+
+${MULTILINGUAL_INSTRUCTION}
+
 13: CONTEXTO DE INVERSIÓN (DOMINA ESTOS DATOS):
 14: - Punta Cana: 8-12% rentabilidad Airbnb. Apartamentos turísticos. (Desde $150k USD).
 15: - Santo Domingo: Renta corporativa y plusvalía en el Polígono Central. (Desde $120k USD).
@@ -25,23 +29,25 @@ Tu personalidad es HÍBRIDA:
 26: - FORMATO: NUNCA uses negritas (*), cursivas (_) o Markdown. Texto plano exclusivamente.
 27: - CIERRE: Si la consulta fue financiera, impulsa al VIP. Si fue general, termina con una frase profesional que refuerce tu utilidad total como asistente inteligente.`;
 
-export async function runAgentLoop(userId: number, textMessage: string): Promise<string> {
+export async function runAgentLoop(userId: number, textMessage: string, tenantId: string = "main", customPersona?: string): Promise<string> {
     const maxIterations = 5;
     let iteration = 0;
+
+    const persona = customPersona || SYSTEM_PROMPT;
 
     // 1. Añadimos el mensaje del usuario a la DB
     await addMessage({
         user_id: userId,
         role: "user",
         content: textMessage
-    });
+    }, tenantId);
 
     // 2. Extraemos el contexto reciente de la BD
-    const recentMessages = await getRecentContext(userId, 15);
+    const recentMessages = await getRecentContext(userId, tenantId, 15);
 
     // Convertimos al formato OpenAI
     const messageHistory: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: persona },
         ...recentMessages.map((msg: any) => ({
             role: msg.role === "user" ? "user" : "assistant",
             content: msg.content
@@ -67,8 +73,8 @@ export async function runAgentLoop(userId: number, textMessage: string): Promise
             console.log(`[Agente Iteración ${iteration}] El LLM llamó a herramientas:`, message.tool_calls.map(t => t.function.name));
 
             for (const toolCall of message.tool_calls) {
-                // Ejecutamos la herramienta
-                const toolResult = await executeToolCall(toolCall);
+                // Ejecutamos la herramienta pasando el tenantId
+                const toolResult = await executeToolCall(toolCall, tenantId);
 
                 // Devolvemos el resultado al LLM
                 messageHistory.push({
@@ -98,7 +104,7 @@ export async function runAgentLoop(userId: number, textMessage: string): Promise
         user_id: userId,
         role: "assistant",
         content: finalResponse
-    });
+    }, tenantId);
 
     return finalResponse;
 }

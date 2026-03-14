@@ -6,11 +6,44 @@ const telegramApi = new Api(env.TELEGRAM_BOT_TOKEN);
 
 export interface OpeninvertitTool {
     definition: OpenAI.Chat.ChatCompletionTool;
-    execute: (args: any) => Promise<string> | string;
+    execute: (args: any, tenantId?: string) => Promise<string> | string;
 }
 
-// Implementación de herramientas básicas locales para comprobar ejecución
+import { captureLead } from "../crm/leads.js";
+
 export const tools: OpeninvertitTool[] = [
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "capture_lead",
+                description: "Registra a un cliente interesado (Lead) en el CRM. Úsala cuando el usuario muestre un interés claro en invertir, comprar o suscribirse.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string", description: "Nombre completo del interesado" },
+                        interest: { type: "string", description: "En qué está interesado específicamente (ej: Inversión Punta Cana, Grupo VIP, CRM)" },
+                        email: { type: "string", description: "Email si lo proporcionó" },
+                        phone: { type: "string", description: "Teléfono si es distinto al de contacto" },
+                    },
+                    required: ["name", "interest"],
+                },
+            },
+        },
+        execute: async (args: any, tenantId: string = "main") => {
+            await captureLead({
+                tenantId,
+                userId: "tool_execution", // En una implementación más fina pasaríamos el ID real
+                name: args.name,
+                interest: args.interest,
+                email: args.email,
+                phone: args.phone,
+                source: "telegram",
+                created_at: new Date()
+            });
+            return `INFO: El lead de ${args.name} ha sido registrado con éxito en el CRM para seguimiento.`;
+        }
+    },
     {
         definition: {
             type: "function",
@@ -119,7 +152,7 @@ export const tools: OpeninvertitTool[] = [
 
 export const toolDefinitions = tools.map((t) => t.definition);
 
-export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall) {
+export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall, tenantId: string = "main") {
     const tool = tools.find((t) => t.definition.function.name === toolCall.function.name);
     if (!tool) {
         return `Error: Herramienta '${toolCall.function.name}' no encontrada.`;
@@ -127,7 +160,7 @@ export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessag
 
     try {
         const args = JSON.parse(toolCall.function.arguments);
-        const result = await tool.execute(args);
+        const result = await tool.execute(args, tenantId);
         return result;
     } catch (error: any) {
         return `Error ejecutando la herramienta: ${error.message}`;

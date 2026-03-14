@@ -47,12 +47,12 @@ export function setupWhatsApp() {
             first_name: name,
             last_name: "WA",
             username: message.from
-        });
+        }, "main");
 
         console.log(`[WhatsApp Lead] Mensaje recibido de ${name} (${message.from}): ${message.body}`);
 
         try {
-            const agentResponse = await runAgentLoop(numericId, message.body);
+            const agentResponse = await runAgentLoop(numericId, message.body, "main");
             
             if (agentResponse.startsWith("IMAGEN_GENERADA|")) {
                 const parts = agentResponse.split("|");

@@ -4,13 +4,12 @@ import { whitelistMiddleware } from "./middleware.js";
 import { upsertUser } from "../memory/index.js";
 import { runAgentLoop } from "../agent/loop.js";
 
-export function setupBot() {
-    const bot = new Bot(env.TELEGRAM_BOT_TOKEN);
+import { TenantConfig } from "../config.js";
 
-    // 1. Aplicar lista blanca (whitelist) a todas las interacciones
-    // bot.use(whitelistMiddleware); // Comentado para permitir acceso público
+export function setupBot(tenant: TenantConfig) {
+    const bot = new Bot(tenant.token);
 
-    // 2. Manejar comando /start
+    // 1. Manejar comando /start
     bot.command("start", async (ctx) => {
         try {
             if (!ctx.from) return;
@@ -20,16 +19,16 @@ export function setupBot() {
                 first_name: ctx.from.first_name || null,
                 last_name: ctx.from.last_name || null,
                 username: ctx.from.username || null,
-            });
+            }, tenant.id);
 
-            await ctx.reply("¡Hola! Soy Openinvertit, tu asesor financiero experto en bienes raíces en República Dominicana. ¿En qué puedo ayudarte a invertir hoy?");
+            await ctx.reply("¡Hola! Soy un asistente experto configurado para esta empresa. ¿En qué puedo ayudarte hoy?");
         } catch (error) {
-            console.error("❌ Error en comando /start:", error);
+            console.error(`❌ Error en comando /start para tenant ${tenant.id}:`, error);
             await ctx.reply("Lo siento, tuve un problema al iniciar. Por favor intenta de nuevo en un momento.");
         }
     });
 
-    // 3. Manejar mensajes de texto
+    // 2. Manejar mensajes de texto
     bot.on("message:text", async (ctx) => {
         try {
             if (!ctx.from) return;
@@ -40,15 +39,15 @@ export function setupBot() {
                 first_name: ctx.from.first_name || null,
                 last_name: ctx.from.last_name || null,
                 username: ctx.from.username || null,
-            });
+            }, tenant.id);
 
             const userMessage = ctx.message.text;
 
             // Mostramos acción de "escribiendo..." en Telegram
             await ctx.replyWithChatAction("typing");
 
-            // Ejecutamos el agente
-            const agentResponse = await runAgentLoop(ctx.from.id, userMessage);
+            // Ejecutamos el agente pasando el tenant y su persona
+            const agentResponse = await runAgentLoop(ctx.from.id, userMessage, tenant.id, tenant.persona);
 
             // Verificamos si la respuesta indica que se generó una imagen
             if (agentResponse.startsWith("IMAGEN_GENERADA|")) {
@@ -61,11 +60,10 @@ export function setupBot() {
                     caption: `🎨 He visualizado tu idea:\n\n"${prompt}"`
                 });
             } else {
-                // Enviamos la respuesta sin parse_mode para evitar errores de Markdown mal formado
                 await ctx.reply(agentResponse);
             }
         } catch (error: any) {
-            console.error("❌ ERROR AL PROCESAR MENSAJE:", error);
+            console.error(`❌ ERROR AL PROCESAR MENSAJE en ${tenant.id}:`, error);
             await ctx.reply("Ocurrió un error al procesar tu mensaje. Por favor, inténtalo de nuevo.");
         }
     });
@@ -73,12 +71,12 @@ export function setupBot() {
     // Iniciar bot
     bot.start({
         onStart: (botInfo) => {
-            console.log(`🤖 Bot iniciado correctamente como @${botInfo.username}`);
+            console.log(`🤖 Bot iniciado correctamente: @${botInfo.username} (Empresa: ${tenant.name})`);
         },
     });
 
     bot.catch((err) => {
-        console.error("🔥 ERROR GLOBAL DEL BOT:", err);
+        console.error(`🔥 ERROR GLOBAL DEL BOT (${tenant.id}):`, err);
     });
 
     return bot;

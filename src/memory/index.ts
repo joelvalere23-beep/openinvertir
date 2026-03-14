@@ -17,10 +17,10 @@ export interface User {
 }
 
 // Funciones para gestionar usuarios
-export async function upsertUser(user: User) {
+export async function upsertUser(user: User, tenantId: string = "main") {
   if (!db) return;
   
-  const userRef = db.collection("users").doc(user.id.toString());
+  const userRef = db.collection("tenants").doc(tenantId).collection("users").doc(user.id.toString());
   await userRef.set({
     first_name: user.first_name,
     last_name: user.last_name,
@@ -30,10 +30,10 @@ export async function upsertUser(user: User) {
 }
 
 // Funciones de memoria
-export async function addMessage(message: ChatMessage) {
+export async function addMessage(message: ChatMessage, tenantId: string = "main") {
   if (!db) return null;
 
-  const memoryRef = db.collection("users").doc(message.user_id.toString()).collection("memory");
+  const memoryRef = db.collection("tenants").doc(tenantId).collection("users").doc(message.user_id.toString()).collection("memory");
   const result = await memoryRef.add({
     role: message.role,
     content: message.content,
@@ -42,10 +42,10 @@ export async function addMessage(message: ChatMessage) {
   return result.id;
 }
 
-export async function getRecentContext(userId: number, limit: number = 20): Promise<ChatMessage[]> {
+export async function getRecentContext(userId: number, tenantId: string = "main", limit: number = 20): Promise<ChatMessage[]> {
   if (!db) return [];
 
-  const memoryRef = db.collection("users").doc(userId.toString()).collection("memory");
+  const memoryRef = db.collection("tenants").doc(tenantId).collection("users").doc(userId.toString()).collection("memory");
   const snapshot = await memoryRef
     .orderBy("created_at", "desc")
     .limit(limit)
@@ -66,10 +66,10 @@ export async function getRecentContext(userId: number, limit: number = 20): Prom
   return messages.reverse();
 }
 
-export async function clearMemory(userId: number) {
+export async function clearMemory(userId: number, tenantId: string = "main") {
   if (!db) return;
 
-  const memoryRef = db.collection("users").doc(userId.toString()).collection("memory");
+  const memoryRef = db.collection("tenants").doc(tenantId).collection("users").doc(userId.toString()).collection("memory");
   const snapshot = await memoryRef.get();
   
   const batch = db.batch();

@@ -13,6 +13,9 @@ const configSchema = z.object({
     OPENROUTER_MODEL: z.string().default("openrouter/free"),
     FIREBASE_SERVICE_ACCOUNT_PATH: z.string().default("firebase-key.json"),
     FIREBASE_SERVICE_ACCOUNT_JSON: z.string().optional(),
+    // Nuevo: JSON con configuración de múltiples bots para B2B
+    // Formato esperado: '[{"name":"Empresa 1","token":"TOKEN1","persona":"Eres el bot de 1..."}]'
+    TENANTS_JSON: z.string().default("[]"),
 });
 
 const parseResult = configSchema.safeParse(process.env);
@@ -23,8 +26,8 @@ if (!parseResult.success) {
         console.warn(`- ${error.path.join(".")}: ${error.message}`);
     }
     // No salimos con error 1 aquí si tenemos lo mínimo para funcionar (Token + Groq)
-    if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.GROQ_API_KEY) {
-        console.error("❌ ERROR CRÍTICO: Faltas variables esenciales (TELEGRAM_BOT_TOKEN o GROQ_API_KEY). El bot no puede iniciar.");
+    if (!process.env.TELEGRAM_BOT_TOKEN && !process.env.TENANTS_JSON) {
+        console.error("❌ ERROR CRÍTICO: Faltas variables esenciales (BOT_TOKEN o TENANTS_JSON).");
         process.exit(1);
     }
 }
@@ -39,7 +42,34 @@ export const env = parseResult.success
         OPENROUTER_MODEL: process.env.OPENROUTER_MODEL || "openrouter/free",
         FIREBASE_SERVICE_ACCOUNT_PATH: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "firebase-key.json",
         FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+        TENANTS_JSON: process.env.TENANTS_JSON || "[]",
     };
+
+// Procesar tenants
+export interface TenantConfig {
+    id: string;
+    name: string;
+    token: string;
+    persona?: string;
+}
+
+let tenants: TenantConfig[] = [];
+try {
+    tenants = JSON.parse(env.TENANTS_JSON);
+} catch (e) {
+    console.warn("⚠️ Error al parsear TENANTS_JSON, usando bot por defecto.");
+}
+
+// Si hay un token individual, lo añadimos como el tenant principal
+if (env.TELEGRAM_BOT_TOKEN) {
+    tenants.push({
+        id: "main",
+        name: "OpenInvertit Main",
+        token: env.TELEGRAM_BOT_TOKEN
+    });
+}
+
+export { tenants };
 
 // Whitelist opcional (si no se provee, no se usa)
 const rawAllowedIds = process.env.TELEGRAM_ALLOWED_USER_IDS || "";
