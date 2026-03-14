@@ -53,7 +53,20 @@ export function setupWhatsApp() {
 
         try {
             const agentResponse = await runAgentLoop(numericId, message.body);
-            await client.sendMessage(message.from, agentResponse);
+            
+            if (agentResponse.startsWith("IMAGEN_GENERADA|")) {
+                const parts = agentResponse.split("|");
+                const imageUrl = parts[1];
+                const prompt = parts[2];
+
+                const { MessageMedia } = WAWebJS;
+                const media = await MessageMedia.fromUrl(imageUrl);
+                await client.sendMessage(message.from, media, {
+                    caption: `🎨 He visualizado tu idea:\n\n"${prompt}"`
+                });
+            } else {
+                await client.sendMessage(message.from, agentResponse);
+            }
         } catch (error) {
             console.error("Error al procesar mensaje de WA:", error);
         }

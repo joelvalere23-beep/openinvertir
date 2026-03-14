@@ -50,8 +50,20 @@ export function setupBot() {
             // Ejecutamos el agente
             const agentResponse = await runAgentLoop(ctx.from.id, userMessage);
 
-            // Enviamos la respuesta sin parse_mode para evitar errores de Markdown mal formado
-            await ctx.reply(agentResponse);
+            // Verificamos si la respuesta indica que se generó una imagen
+            if (agentResponse.startsWith("IMAGEN_GENERADA|")) {
+                const parts = agentResponse.split("|");
+                const imageUrl = parts[1];
+                const prompt = parts[2];
+                
+                await ctx.replyWithChatAction("upload_photo");
+                await ctx.replyWithPhoto(imageUrl, {
+                    caption: `🎨 He visualizado tu idea:\n\n"${prompt}"`
+                });
+            } else {
+                // Enviamos la respuesta sin parse_mode para evitar errores de Markdown mal formado
+                await ctx.reply(agentResponse);
+            }
         } catch (error: any) {
             console.error("❌ ERROR AL PROCESAR MENSAJE:", error);
             await ctx.reply("Ocurrió un error al procesar tu mensaje. Por favor, inténtalo de nuevo.");

@@ -49,6 +49,50 @@ export const tools: OpeninvertitTool[] = [
         definition: {
             type: "function",
             function: {
+                name: "generate_image",
+                description: "Generar una imagen a partir de una descripción textual usando IA avanzada (DALL-E 3).",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: {
+                            type: "string",
+                            description: "Descripción detallada de la imagen que se desea generar.",
+                        },
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string }) => {
+            try {
+                const openai = new OpenAI({ apiKey: env.GROQ_API_KEY }); // Usamos la misma clave si es de OpenAI, o env.OPENAI_API_KEY si existiera
+                
+                console.log(`🎨 Generando imagen para: ${args.prompt}`);
+                const response = await openai.images.generate({
+                    model: "dall-e-3",
+                    prompt: args.prompt,
+                    n: 1,
+                    size: "1024x1024",
+                });
+
+                if (!response.data || response.data.length === 0) {
+                    throw new Error("No se recibió información de la imagen generada.");
+                }
+
+                const imageUrl = response.data[0].url;
+                if (!imageUrl) throw new Error("No se pudo obtener la URL de la imagen.");
+
+                return `IMAGEN_GENERADA|${imageUrl}|${args.prompt}`;
+            } catch (e: any) {
+                console.error("Error en DALL-E:", e);
+                return `Error generando la imagen: ${e.message}. Asegúrate de que la API Key tenga créditos para DALL-E 3.`;
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
                 name: "generate_vip_invite",
                 description: "Genera un enlace de invitación temporal de un solo uso para el grupo VIP privado de inversores. Usa esta herramienta SOLAMENTE cuando el inversor haya confirmado explícitamente el pago exitoso.",
                 parameters: {
