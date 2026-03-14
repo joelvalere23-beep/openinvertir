@@ -8,12 +8,13 @@ const telegramApi = new Api(env.TELEGRAM_BOT_TOKEN);
 
 export interface OpeninvertitTool {
     definition: OpenAI.Chat.ChatCompletionTool;
-    execute: (args: any, tenantId?: string) => Promise<string> | string;
+    execute: (args: any, tenantId?: string, userId?: number) => Promise<string> | string;
 }
 
 import { getGoogleAuthUrl } from "../auth/google.js";
 import { getMicrosoftAuthUrl } from "../auth/microsoft.js";
 import { getTokens } from "../memory/index.js";
+import { captureLead } from "../crm/leads.js";
 
 export const tools: OpeninvertitTool[] = [
     {
@@ -31,8 +32,9 @@ export const tools: OpeninvertitTool[] = [
                 },
             },
         },
-        execute: async (args: { userId: number }, tenantId: string = "main") => {
-            const url = getGoogleAuthUrl(args.userId, tenantId);
+        execute: async (args: any, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario para la autorización.";
+            const url = getGoogleAuthUrl(userId, tenantId);
             return `Por favor, haz clic en el siguiente enlace para autorizar el acceso a tu cuenta de Google: ${url}\n\nUna vez autorizado, podré leer tu agenda y correos.`;
         }
     },
@@ -44,15 +46,13 @@ export const tools: OpeninvertitTool[] = [
                 description: "Genera un enlace para que el usuario autorice el acceso a su Outlook y Calendario de Microsoft.",
                 parameters: {
                     type: "object",
-                    properties: {
-                        userId: { type: "number" }
-                    },
-                    required: ["userId"]
+                    properties: {},
                 },
             },
         },
-        execute: async (args: { userId: number }, tenantId: string = "main") => {
-            const url = await getMicrosoftAuthUrl(args.userId, tenantId);
+        execute: async (args: any, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario para la autorización.";
+            const url = await getMicrosoftAuthUrl(userId, tenantId);
             return `Por favor, haz clic en el siguiente enlace para autorizar el acceso a tu cuenta de Microsoft: ${url}\n\nUna vez autorizado, podré gestionar tu correo y agenda de Outlook.`;
         }
     },
@@ -65,16 +65,16 @@ export const tools: OpeninvertitTool[] = [
                 parameters: {
                     type: "object",
                     properties: {
-                        provider: { type: "string", enum: ["google", "microsoft"] },
-                        userId: { type: "number" }
+                        provider: { type: "string", enum: ["google", "microsoft"] }
                     },
-                    required: ["provider", "userId"]
+                    required: ["provider"]
                 },
             },
         },
-        execute: async (args: { provider: "google" | "microsoft", userId: number }, tenantId: string = "main") => {
-            const tokens = await getTokens(args.userId, tenantId, args.provider);
-            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}. Por favor, usa el comando de autorización primero.`;
+        execute: async (args: { provider: "google" | "microsoft" }, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario.";
+            const tokens = await getTokens(userId, tenantId, args.provider);
+            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}. Por favor, pídeme el enlace de autorización primero.`;
 
             if (args.provider === "google") {
                 const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
@@ -98,15 +98,15 @@ export const tools: OpeninvertitTool[] = [
                 parameters: {
                     type: "object",
                     properties: {
-                        provider: { type: "string", enum: ["google", "microsoft"] },
-                        userId: { type: "number" }
+                        provider: { type: "string", enum: ["google", "microsoft"] }
                     },
-                    required: ["provider", "userId"]
+                    required: ["provider"]
                 },
             },
         },
-        execute: async (args: { provider: "google" | "microsoft", userId: number }, tenantId: string = "main") => {
-            const tokens = await getTokens(args.userId, tenantId, args.provider);
+        execute: async (args: { provider: "google" | "microsoft" }, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario.";
+            const tokens = await getTokens(userId, tenantId, args.provider);
             if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}.`;
 
             if (args.provider === "google") {
@@ -266,7 +266,7 @@ export const tools: OpeninvertitTool[] = [
 
 export const toolDefinitions = tools.map((t) => t.definition);
 
-export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall, tenantId: string = "main") {
+export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall, tenantId: string = "main", userId?: number) {
     const tool = tools.find((t) => t.definition.function.name === toolCall.function.name);
     if (!tool) {
         return `Error: Herramienta '${toolCall.function.name}' no encontrada.`;
@@ -274,7 +274,7 @@ export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessag
 
     try {
         const args = JSON.parse(toolCall.function.arguments);
-        const result = await tool.execute(args, tenantId);
+        const result = await tool.execute(args, tenantId, userId);
         return result;
     } catch (error: any) {
         return `Error ejecutando la herramienta: ${error.message}`;
