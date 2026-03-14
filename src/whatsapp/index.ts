@@ -54,18 +54,23 @@ export function setupWhatsApp() {
         try {
             const agentResponse = await runAgentLoop(numericId, message.body, "main");
             
-            if (agentResponse.startsWith("IMAGEN_GENERADA|")) {
-                const parts = agentResponse.split("|");
-                const imageUrl = parts[1];
-                const prompt = parts[2];
+            // Enviar el texto de la respuesta
+            if (agentResponse.text) {
+                await client.sendMessage(message.from, agentResponse.text);
+            }
 
+            // Enviar imágenes si las hay
+            if (agentResponse.images && agentResponse.images.length > 0) {
                 const { MessageMedia } = WAWebJS;
-                const media = await MessageMedia.fromUrl(imageUrl);
-                await client.sendMessage(message.from, media, {
-                    caption: `🎨 He visualizado tu idea:\n\n"${prompt}"`
-                });
-            } else {
-                await client.sendMessage(message.from, agentResponse);
+                for (const imageUrl of agentResponse.images) {
+                    try {
+                        const media = await MessageMedia.fromUrl(imageUrl);
+                        await client.sendMessage(message.from, media);
+                    } catch (picError: any) {
+                        console.error("Error enviando imagen a WhatsApp:", picError.message);
+                        await client.sendMessage(message.from, `No pude mostrar la imagen, pero aquí está el link: ${imageUrl}`);
+                    }
+                }
             }
         } catch (error) {
             console.error("Error al procesar mensaje de WA:", error);

@@ -212,6 +212,31 @@ export const tools: OpeninvertitTool[] = [
         },
         execute: async (args: { prompt: string }) => {
             try {
+                // PRIMERO: Intentar con Google Gemini (Imagen 3 / Nano Banana)
+                if (env.GEMINI_API_KEY) {
+                    console.log(`🍌 Generando imagen [Imagen 3] para: ${args.prompt}`);
+                    const axios = require('axios');
+                    const response = await axios.post(
+                        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${env.GEMINI_API_KEY}`,
+                        {
+                            instances: [{ prompt: args.prompt }],
+                            parameters: { sampleCount: 1 }
+                        },
+                        { headers: { 'Content-Type': 'application/json' } }
+                    );
+
+                    const b64 = response?.data?.predictions?.[0]?.bytesBase64;
+                    if (b64) {
+                        return {
+                            text: `Imagen generada con éxito usando tecnología Imagen 3.`,
+                            image: `data:image/png;base64,${b64}`
+                        };
+                    } else {
+                        console.warn("⚠️ Falló Imagen 3, intentando fallback...");
+                    }
+                }
+
+                // SEGUNDO: Fallback a OpenAI DALL-E 3 o OpenRouter
                 let apiKey = env.OPENAI_API_KEY;
                 let baseURL = undefined;
                 let model = "dall-e-3";
@@ -222,51 +247,34 @@ export const tools: OpeninvertitTool[] = [
                     model = "openai/dall-e-3";
                 }
 
-                if (!apiKey) return "Error: No hay una API Key configurada para generación de imágenes.";
+                if (!apiKey) {
+                    if (env.GEMINI_API_KEY) {
+                        throw new Error("El sistema primario (Imagen 3) no respondió y no hay llaves configuradas para Fallback (DALL-E 3).");
+                    }
+                    return "Error: No hay una API Key configurada para generación de imágenes.";
+                }
 
                 const openai = new OpenAI({ apiKey, baseURL });
-                
                 console.log(`🎨 Generando imagen [${model}] para: ${args.prompt}`);
-                const response = await openai.images.generate({
+                const b64Response = await openai.images.generate({
                     model: model as any,
                     prompt: args.prompt,
                     n: 1,
                     size: "1024x1024",
-                    response_format: "url", // Forzamos URL primero
+                    response_format: "b64_json",
                 });
 
-                if (!response.data || response.data.length === 0) {
-                    throw new Error("La API no devolvió datos de imagen.");
-                }
-
-                let imageUrl = response.data[0].url;
-                
-                // Si no hay URL, probamos con b64_json (algunos proveedores de OpenRouter lo prefieren)
-                if (!imageUrl) {
-                    console.log("⚠️ No se recibió URL, intentando con b64_json...");
-                    const b64Response = await openai.images.generate({
-                        model: model as any,
-                        prompt: args.prompt,
-                        n: 1,
-                        size: "1024x1024",
-                        response_format: "b64_json",
-                    });
-                    const b64 = b64Response.data[0].b64_json;
-                    if (b64) {
-                        imageUrl = `data:image/png;base64,${b64}`;
-                    }
-                }
-
-                if (!imageUrl) throw new Error("No se pudo obtener la imagen (ni URL ni Base64).");
+                const b64 = b64Response.data[0].b64_json;
+                if (!b64) throw new Error("No se pudo obtener la imagen.");
                 
                 return {
-                    text: `Imagen generada con éxito. El usuario ya puede verla.`,
-                    image: imageUrl
+                    text: `Imagen generada con éxito.`,
+                    image: `data:image/png;base64,${b64}`
                 };
             } catch (e: any) {
-                console.error("Error en DALL-E:", e);
+                console.error("Error al generar imagen:", e?.response?.data || e);
                 return {
-                    text: `Error generando la imagen: ${e.message}. Asegúrate de que la API Key tenga créditos para DALL-E 3.`,
+                    text: `Error generando la imagen. Por favor verifica tus créditos o tu API Key. Detalle: ${e.message}`,
                 };
             }
         }

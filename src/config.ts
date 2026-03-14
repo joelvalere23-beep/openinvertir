@@ -22,6 +22,7 @@ const configSchema = z.object({
     MS_CLIENT_ID: z.string().optional(),
     MS_CLIENT_SECRET: z.string().optional(),
     OPENAI_API_KEY: z.string().optional(),
+    GEMINI_API_KEY: z.string().optional(),
 });
 
 const parseResult = configSchema.safeParse(process.env);
@@ -54,6 +55,7 @@ export const env = parseResult.success
         MS_CLIENT_ID: process.env.MS_CLIENT_ID,
         MS_CLIENT_SECRET: process.env.MS_CLIENT_SECRET,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     };
 
 // Procesar tenants
