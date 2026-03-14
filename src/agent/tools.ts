@@ -270,6 +270,71 @@ export const tools: OpeninvertitTool[] = [
         definition: {
             type: "function",
             function: {
+                name: "sync_to_notebook",
+                description: "Sincroniza información importante (resúmenes, datos de inversión, notas) con una 'Base de Conocimientos' en Google Drive que NotebookLM puede leer.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        fileName: { type: "string", description: "Nombre del archivo (ej: Resumen_Inversion_Punta_Cana.txt)" },
+                        content: { type: "string", description: "Contenido detallado para guardar" },
+                    },
+                    required: ["fileName", "content"],
+                },
+            },
+        },
+        execute: async (args: { fileName: string, content: string }, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: Usuario no identificado.";
+            const tokens = await getTokens(userId, tenantId, "google");
+            if (!tokens) return "No tengo permiso para tu Google Drive. Por favor, pídeme el enlace de autorización de Google.";
+
+            try {
+                const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+                oauth2Client.setCredentials(tokens);
+                const drive = google.drive({ version: "v3", auth: oauth2Client });
+
+                // 1. Buscar si el archivo ya existe
+                const list = await drive.files.list({
+                    q: `name = '${args.fileName}' and trashed = false`,
+                    fields: 'files(id, name)',
+                });
+
+                let responseId = "";
+                if (list.data.files && list.data.files.length > 0) {
+                    // Actualizar existente
+                    const fileId = list.data.files[0].id!;
+                    await drive.files.update({
+                        fileId: fileId,
+                        media: {
+                            mimeType: 'text/plain',
+                            body: args.content,
+                        },
+                    });
+                    responseId = fileId;
+                } else {
+                    // Crear nuevo
+                    const res = await drive.files.create({
+                        requestBody: {
+                            name: args.fileName,
+                            mimeType: 'text/plain',
+                        },
+                        media: {
+                            mimeType: 'text/plain',
+                            body: args.content,
+                        },
+                    });
+                    responseId = res.data.id!;
+                }
+
+                return `¡Hecho! He sincronizado el archivo '${args.fileName}' en tu Google Drive. Ahora puedes usarlo como fuente en NotebookLM.`;
+            } catch (e: any) {
+                return `Error al sincronizar con Drive: ${e.message}`;
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
                 name: "generate_vip_invite",
                 description: "Genera un enlace de invitación temporal de un solo uso para el grupo VIP privado de inversores. Usa esta herramienta SOLAMENTE cuando el inversor haya confirmado explícitamente el pago exitoso.",
                 parameters: {
