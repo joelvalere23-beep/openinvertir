@@ -91,7 +91,7 @@ export function setupBot(tenant: TenantConfig) {
 
         } catch (e: any) {
             console.error(`❌ Error procesando voz:`, e);
-            await ctx.reply("Lo siento, tuve un problema al procesar tu audio.");
+            await ctx.reply(`Lo siento, tuve un problema al procesar tu audio: ${e.message}`);
         } finally {
             if (voicePath && fs.existsSync(voicePath)) await fs.remove(voicePath);
             if (responseAudioPath && fs.existsSync(responseAudioPath)) await fs.remove(responseAudioPath);
@@ -136,7 +136,7 @@ export function setupBot(tenant: TenantConfig) {
             }
         } catch (error: any) {
             console.error(`❌ ERROR AL PROCESAR MENSAJE en ${tenant.id}:`, error);
-            await ctx.reply("Ocurrió un error al procesar tu mensaje. Por favor, inténtalo de nuevo.");
+            await ctx.reply(`Ocurrió un error al procesar tu mensaje: ${error.message}. Por favor, inténtalo de nuevo.`);
         }
     });
 
