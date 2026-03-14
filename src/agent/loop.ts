@@ -35,9 +35,10 @@ DIRECTRICES DE COMPORTAMIENTO:
 - FORMATO: NUNCA uses negritas (*), cursivas (_) o Markdown. Texto plano exclusivamente.
 - CIERRE: Si la consulta fue financiera, impulsa al VIP. Si fue productiva, asegura que estás aquí para optimizar su tiempo.`;
 
-export async function runAgentLoop(userId: number, textMessage: string, tenantId: string = "main", customPersona?: string): Promise<string> {
+export async function runAgentLoop(userId: number, textMessage: string, tenantId: string = "main", customPersona?: string): Promise<{ text: string, images: string[] }> {
     const maxIterations = 5;
     let iteration = 0;
+    const collectedImages: string[] = [];
 
     const persona = customPersona || SYSTEM_PROMPT;
 
@@ -80,13 +81,17 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
 
             for (const toolCall of message.tool_calls) {
                 // Ejecutamos la herramienta pasando el tenantId y el userId
-                const toolResult = await executeToolCall(toolCall, tenantId, userId);
+                const toolExecution = await executeToolCall(toolCall, tenantId, userId);
+                
+                if (toolExecution.image) {
+                    collectedImages.push(toolExecution.image);
+                }
 
                 // Devolvemos el resultado al LLM
                 messageHistory.push({
                     role: "tool",
                     tool_call_id: toolCall.id,
-                    content: toolResult
+                    content: toolExecution.result
                 });
             }
         }
@@ -112,5 +117,8 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
         content: finalResponse
     }, tenantId);
 
-    return finalResponse;
+    return {
+        text: finalResponse,
+        images: collectedImages
+    };
 }

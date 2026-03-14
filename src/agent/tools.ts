@@ -258,11 +258,16 @@ export const tools: OpeninvertitTool[] = [
                 }
 
                 if (!imageUrl) throw new Error("No se pudo obtener la imagen (ni URL ni Base64).");
-
-                return `IMAGEN_GENERADA|${imageUrl}|${args.prompt}`;
+                
+                return {
+                    text: `Imagen generada con éxito. El usuario ya puede verla.`,
+                    image: imageUrl
+                };
             } catch (e: any) {
                 console.error("Error en DALL-E:", e);
-                return `Error generando la imagen: ${e.message}. Asegúrate de que la API Key tenga créditos para DALL-E 3.`;
+                return {
+                    text: `Error generando la imagen: ${e.message}. Asegúrate de que la API Key tenga créditos para DALL-E 3.`,
+                };
             }
         }
     },
@@ -361,17 +366,25 @@ export const tools: OpeninvertitTool[] = [
 
 export const toolDefinitions = tools.map((t) => t.definition);
 
-export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall, tenantId: string = "main", userId?: number) {
+export async function executeToolCall(toolCall: OpenAI.Chat.ChatCompletionMessageToolCall, tenantId: string = "main", userId?: number): Promise<{ result: string, image?: string }> {
     const tool = tools.find((t) => t.definition.function.name === toolCall.function.name);
     if (!tool) {
-        return `Error: Herramienta '${toolCall.function.name}' no encontrada.`;
+        return { result: `Error: Herramienta '${toolCall.function.name}' no encontrada.` };
     }
 
     try {
         const args = JSON.parse(toolCall.function.arguments);
         const result = await tool.execute(args, tenantId, userId);
-        return result;
+        
+        if (typeof result === "object" && result !== null) {
+            return { 
+                result: (result as any).text || JSON.stringify(result),
+                image: (result as any).image 
+            };
+        }
+        
+        return { result: String(result) };
     } catch (error: any) {
-        return `Error ejecutando la herramienta: ${error.message}`;
+        return { result: `Error ejecutando la herramienta: ${error.message}` };
     }
 }
