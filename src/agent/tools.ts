@@ -8,7 +8,7 @@ const telegramApi = new Api(env.TELEGRAM_BOT_TOKEN);
 
 export interface OpeninvertitTool {
     definition: OpenAI.Chat.ChatCompletionTool;
-    execute: (args: any, tenantId?: string, userId?: number) => Promise<string> | string;
+    execute: (args: any, tenantId?: string, userId?: number) => Promise<string | { text: string, image?: string }> | string | { text: string, image?: string };
 }
 
 import { getGoogleAuthUrl } from "../auth/google.js";
@@ -212,69 +212,19 @@ export const tools: OpeninvertitTool[] = [
         },
         execute: async (args: { prompt: string }) => {
             try {
-                // PRIMERO: Intentar con Google Gemini (Imagen 3 / Nano Banana)
-                if (env.GEMINI_API_KEY) {
-                    console.log(`🍌 Generando imagen [Imagen 3] para: ${args.prompt}`);
-                    const axios = require('axios');
-                    const response = await axios.post(
-                        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${env.GEMINI_API_KEY}`,
-                        {
-                            instances: [{ prompt: args.prompt }],
-                            parameters: { sampleCount: 1 }
-                        },
-                        { headers: { 'Content-Type': 'application/json' } }
-                    );
+                // Generación de imágenes 100% gratuita y sin límites usando Pollinations (basado en SDXL/Flux)
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(args.prompt)}?width=1024&height=1024&nologo=true`;
 
-                    const b64 = response?.data?.predictions?.[0]?.bytesBase64;
-                    if (b64) {
-                        return {
-                            text: `Imagen generada con éxito usando tecnología Imagen 3.`,
-                            image: `data:image/png;base64,${b64}`
-                        };
-                    } else {
-                        console.warn("⚠️ Falló Imagen 3, intentando fallback...");
-                    }
-                }
+                console.log(`🍌 Generando imagen [Pollinations AI] para: ${args.prompt}`);
 
-                // SEGUNDO: Fallback a OpenAI DALL-E 3 o OpenRouter
-                let apiKey = env.OPENAI_API_KEY;
-                let baseURL = undefined;
-                let model = "dall-e-3";
-
-                if (!apiKey && env.OPENROUTER_API_KEY) {
-                    apiKey = env.OPENROUTER_API_KEY;
-                    baseURL = "https://openrouter.ai/api/v1";
-                    model = "openai/dall-e-3";
-                }
-
-                if (!apiKey) {
-                    if (env.GEMINI_API_KEY) {
-                        throw new Error("El sistema primario (Imagen 3) no respondió y no hay llaves configuradas para Fallback (DALL-E 3).");
-                    }
-                    return "Error: No hay una API Key configurada para generación de imágenes.";
-                }
-
-                const openai = new OpenAI({ apiKey, baseURL });
-                console.log(`🎨 Generando imagen [${model}] para: ${args.prompt}`);
-                const b64Response = await openai.images.generate({
-                    model: model as any,
-                    prompt: args.prompt,
-                    n: 1,
-                    size: "1024x1024",
-                    response_format: "b64_json",
-                });
-
-                const b64 = b64Response.data[0].b64_json;
-                if (!b64) throw new Error("No se pudo obtener la imagen.");
-                
                 return {
                     text: `Imagen generada con éxito.`,
-                    image: `data:image/png;base64,${b64}`
+                    image: imageUrl
                 };
             } catch (e: any) {
-                console.error("Error al generar imagen:", e?.response?.data || e);
+                console.error("Error al generar imagen:", e);
                 return {
-                    text: `Error generando la imagen. Por favor verifica tus créditos o tu API Key. Detalle: ${e.message}`,
+                    text: `Error generando la imagen. Detalle: ${e.message}`,
                 };
             }
         }
