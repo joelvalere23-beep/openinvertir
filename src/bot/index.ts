@@ -36,13 +36,13 @@ export function setupBot(tenant: TenantConfig) {
     // 2. Manejar mensajes de voz
     bot.on("message:voice", async (ctx) => {
         try {
-            if (!ctx.from) return;
-
+            console.log(`📥 Recibido mensaje de voz de ${ctx.from.first_name}...`);
             await ctx.replyWithChatAction("record_voice");
 
             // 1. Obtener archivo de voz
             const file = await ctx.getFile();
             const fileUrl = `https://api.telegram.org/file/bot${tenant.token}/${file.file_path}`;
+            console.log(`🔗 Descargando audio desde: ${file.file_id}`);
             
             // 2. Descargar localmente para procesar
             const tempDir = os.tmpdir();
@@ -50,34 +50,43 @@ export function setupBot(tenant: TenantConfig) {
             
             const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
             await fs.writeFile(voicePath, response.data);
+            console.log(`✅ Archivo guardado en: ${voicePath}`);
 
             // 3. Transcribir a texto
+            console.log("🎙️ Transcribiendo audio...");
             const transcribedText = await transcribeAudio(voicePath);
             
             if (!transcribedText) {
+                console.error("❌ Fallo en la transcripción: El texto está vacío");
                 await ctx.reply("Lo siento, no pude entender tu mensaje de voz. ¿Podrías repetirlo?");
                 return;
             }
 
-            console.log(`🎙️ Voz de ${ctx.from.first_name}: ${transcribedText}`);
+            console.log(`📝 Transcripción exitosa: "${transcribedText}"`);
 
             // 4. Pasar al agente
+            console.log("🧠 Consultando al agente...");
             const agentResponse = await runAgentLoop(ctx.from.id, transcribedText, tenant.id, tenant.persona);
+            console.log(`🤖 Respuesta del agente: "${agentResponse.substring(0, 50)}..."`);
 
             // 5. Generar respuesta por voz (opcional si hay API Key)
             const responseAudioPath = path.join(tempDir, `resp_${Date.now()}.mp3`);
+            console.log("🔊 Intentando generar voz de respuesta...");
             const hasVoice = await generateVoice(agentResponse, responseAudioPath);
 
             if (hasVoice) {
+                console.log("📤 Enviando respuesta de voz...");
                 await ctx.replyWithVoice(new InputFile(responseAudioPath));
                 // Limpiar temporales
                 await fs.remove(responseAudioPath);
             } else {
+                console.log("📤 Enviando respuesta de texto (TTS falló o no está configurado)");
                 await ctx.reply(agentResponse);
             }
 
             // Limpiar archivo de entrada
             await fs.remove(voicePath);
+            console.log("🧹 Limpieza de temporales completada");
 
         } catch (error) {
             console.error(`❌ Error en mensajes de voz (${tenant.id}):`, error);
