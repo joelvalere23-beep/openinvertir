@@ -14,7 +14,7 @@ const server = http.createServer(async (req, res) => {
 
     if (path === "/") {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('OpenInvertit is running\n');
+        res.end('OpenInvertit is running - v1.0.2\n');
         return;
     }
 

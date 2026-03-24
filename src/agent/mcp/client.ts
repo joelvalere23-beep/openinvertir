@@ -15,9 +15,7 @@ export async function executeMcpTool(serverPath: string, toolName: string, args:
         name: "OpenInvertit-Agent",
         version: "1.0.0",
     }, {
-        capabilities: {
-            tools: {},
-        },
+        capabilities: {}
     });
 
     await client.connect(transport);

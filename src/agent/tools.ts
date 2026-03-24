@@ -308,15 +308,26 @@ export const tools: OpeninvertitTool[] = [
         },
         execute: async () => {
             try {
-                // NOTA PARA EL USUARIO: Para que esto funcione, debes poner el ID real del Grupo Privado y meter al bot de Admin allí.
-                // Para la demo, el bot dirá el siguiente texto:
-                return `INFO DEL SISTEMA: Enlace VIP generado con éxito. Envíale este enlace al usuario final: https://t.me/+FalsoEnlaceDeDemoVIP123`;
+                const vipGroupId = process.env.TELEGRAM_VIP_GROUP_ID;
+                if (!vipGroupId) {
+                    return "Error de configuración: TELEGRAM_VIP_GROUP_ID no está definido. El administrador debe configurar el ID del grupo VIP.";
+                }
 
-                // CÓDIGO REAL A FUTURO:
-                // const invite = await telegramApi.createChatInviteLink(-1000000000000, { member_limit: 1 });
-                // return `Enlace generado con éxito: ${invite.invite_link}`;
+                const groupId = parseInt(vipGroupId, 10);
+                if (isNaN(groupId)) {
+                    return "Error de configuración: TELEGRAM_VIP_GROUP_ID debe ser un número entero (ej: -1001234567890).";
+                }
+
+                // Enlace de un solo uso: el miembro entra una vez y el enlace expira
+                const invite = await telegramApi.createChatInviteLink(groupId, {
+                    member_limit: 1,
+                    name: "Acceso VIP Inversor"
+                });
+
+                return `¡Acceso VIP activado con éxito! Este es tu enlace de invitación exclusivo y de un solo uso: ${invite.invite_link}\n\nEste enlace expira una vez usado. Bienvenido al grupo de inversores elite.`;
             } catch (e: any) {
-                return `Simulación de error generando enlace: ${e.message}`;
+                console.error("Error generando enlace VIP:", e);
+                return `Error al generar el enlace de invitación VIP: ${e.message}. Asegúrate de que el bot sea administrador del grupo.`;
             }
         }
     }

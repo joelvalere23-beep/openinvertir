@@ -1,4 +1,4 @@
-import { ConfidentialsClientApplication, Configuration, LogLevel } from "@azure/msal-node";
+import { ConfidentialClientApplication, Configuration, LogLevel } from "@azure/msal-node";
 
 const REDIRECT_URI = process.env.MS_REDIRECT_URI || "http://localhost:3000/auth/microsoft/callback";
 
@@ -19,7 +19,7 @@ const msalConfig: Configuration = {
     },
 };
 
-const pca = new ConfidentialsClientApplication(msalConfig);
+const pca = new ConfidentialClientApplication(msalConfig);
 
 export async function getMicrosoftAuthUrl(userId: number, tenantId: string) {
     const state = Buffer.from(JSON.stringify({ userId, tenantId })).toString("base64");

@@ -4,6 +4,7 @@ import { env } from "../config.js";
 import { upsertUser } from "../memory/index.js";
 import { runAgentLoop } from "../agent/loop.js";
 import { transcribeAudio, generateVoice } from "../utils/audio.js";
+import { whitelistMiddleware } from "./middleware.js";
 import os from "os";
 import path from "path";
 import fs from "fs-extra";
@@ -12,6 +13,9 @@ import { TenantConfig } from "../config.js";
 
 export function setupBot(tenant: TenantConfig) {
     const bot = new Bot(tenant.token);
+
+    // Middleware de funnel: registra todos los leads y permite el paso
+    bot.use(whitelistMiddleware);
 
     // 1. Manejar comando /start
     bot.command("start", async (ctx) => {
@@ -25,7 +29,17 @@ export function setupBot(tenant: TenantConfig) {
                 username: ctx.from.username || null,
             }, tenant.id);
 
-            await ctx.reply("¡Hola! Soy un asistente experto configurado para esta empresa. ¿En qué puedo ayudarte hoy?");
+            const greeting = `¿Qué tal, ${ctx.from.first_name || "inversor"}? Soy el Agente Oficial de ${tenant.name || "Openinvertit"}.
+
+Soy tu asesor financiero personal especializado en inversiones inmobiliarias en República Dominicana. Puedo ayudarte con:
+
+- Oportunidades de inversión en Punta Cana, Santo Domingo y Las Terrenas
+- Acceso al Grupo VIP Privado de inversores (10 EUR/mes)
+- Gestión de agenda, correos y mucho más
+
+Escríbeme cualquier pregunta o usa /vip para conocer el acceso VIP exclusivo.`;
+
+            await ctx.reply(greeting);
         } catch (error) {
             console.error(`❌ Error en comando /start para tenant ${tenant.id}:`, error);
             await ctx.reply("Lo siento, tuve un problema al iniciar. Por favor intenta de nuevo en un momento.");
@@ -140,7 +154,12 @@ export function setupBot(tenant: TenantConfig) {
         }
     });
 
-    // Nuevo: Comando de debug para ver qué está pasando
+    // Comando de versión
+    bot.command("ping", async (ctx) => {
+        await ctx.reply("PONG - v1.0.2 - Sistema activo y operacional.");
+    });
+
+    // Comando de debug para ver estado del sistema
     bot.command("debug", async (ctx) => {
         const info = [
             `🤖 Bot: ${tenant.name}`,
@@ -149,8 +168,29 @@ export function setupBot(tenant: TenantConfig) {
             `🔑 Tiene OpenRouter: ${env.OPENROUTER_API_KEY ? "SÍ" : "NO"}`,
             `🔑 Tiene OpenAI: ${env.OPENAI_API_KEY ? "SÍ" : "NO"}`,
             `🔑 Tiene Groq: ${env.GROQ_API_KEY ? "SÍ" : "NO"}`,
+            `🏗️ Grupo VIP configurado: ${process.env.TELEGRAM_VIP_GROUP_ID ? "SÍ" : "NO (falta TELEGRAM_VIP_GROUP_ID)"}`,
         ].join("\n");
         await ctx.reply(info);
+    });
+
+    // Comando /vip: pitch directo de venta al Grupo VIP
+    bot.command("vip", async (ctx) => {
+        const pitch = `💎 GRUPO VIP DE INVERSORES - ACCESO EXCLUSIVO
+
+¿Quieres invertir en República Dominicana con los mejores del sector?
+
+Al unirte al Grupo VIP privado obtienes:
+- Oportunidades de crowdfunding inmobiliario (compras conjuntas)
+- Propiedades exclusivas antes de salir al mercado
+- Asesoría directa del equipo de Openinvertit
+- Alertas de rentabilidad en tiempo real
+
+Precio: 10 EUR o 10 USD al mes
+Pago via PayPal: joelvalere23@gmail.com
+
+Una vez realizado el pago, escríbeme aquí confirmando y te envío el enlace de acceso inmediato.`;
+
+        await ctx.reply(pitch);
     });
 
     // Iniciar bot
