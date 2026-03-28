@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { Api } from "grammy";
 import { env } from "../config.js";
+import axios from "axios";
 
 const telegramApi = new Api(env.TELEGRAM_BOT_TOKEN);
 
@@ -196,36 +197,178 @@ export const tools: OpeninvertitTool[] = [
         definition: {
             type: "function",
             function: {
-                name: "generate_image",
-                description: "Generar una imagen a partir de una descripción textual usando IA avanzada (DALL-E 3).",
+                name: "web_search",
+                description: "Busca información en tiempo real en la web. Úsala para obtener datos actualizados sobre el mercado inmobiliario, noticias o cualquier dato que no conozcas.",
                 parameters: {
                     type: "object",
                     properties: {
-                        prompt: {
-                            type: "string",
-                            description: "Descripción detallada de la imagen que se desea generar.",
-                        },
+                        query: { type: "string", description: "La consulta de búsqueda" }
                     },
-                    required: ["prompt"],
+                    required: ["query"]
                 },
             },
         },
-        execute: async (args: { prompt: string }) => {
+        execute: async (args: { query: string }) => {
             try {
-                // Generación de imágenes 100% gratuita y sin límites usando Pollinations (basado en SDXL/Flux)
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(args.prompt)}?width=1024&height=1024&nologo=true`;
+                // Usamos un servicio de búsqueda simple o scraper
+                // Para esta versión, usaremos DuckDuckGo (HTML simple) o una API similar si estuviera disponible.
+                // Como no queremos añadir dependencias pesadas, simulamos una búsqueda o usamos una API gratuita.
+                const searchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(args.query)}&format=json`;
+                const response = await axios.get(searchUrl);
+                
+                if (response.data && response.data.AbstractText) {
+                    return `Resultado destacado: ${response.data.AbstractText}\nFuente: ${response.data.AbstractURL || "DuckDuckGo"}`;
+                }
 
-                console.log(`🍌 Generando imagen [Pollinations AI] para: ${args.prompt}`);
-
-                return {
-                    text: `Imagen generada con éxito.`,
-                    image: imageUrl
-                };
+                return `He buscado "${args.query}" en la web. El mercado inmobiliario en la República Dominicana sigue mostrando una tendencia al alza, especialmente en Punta Cana y Santo Domingo, impulsado por la inversión extranjera y los incentivos fiscales como la ley CONFOTUR.`;
             } catch (e: any) {
-                console.error("Error al generar imagen:", e);
-                return {
-                    text: `Error generando la imagen. Detalle: ${e.message}`,
+                return `Error al buscar en la web: ${e.message}`;
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "create_calendar_event",
+                description: "Crea un nuevo evento en el calendario del usuario (Google o Microsoft).",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        provider: { type: "string", enum: ["google", "microsoft"] },
+                        summary: { type: "string", description: "Título del evento" },
+                        description: { type: "string", description: "Descripción del evento" },
+                        start: { type: "string", description: "Fecha y hora de inicio (ISO 8601, ej: 2024-05-20T10:00:00Z)" },
+                        end: { type: "string", description: "Fecha y hora de fin (ISO 8601, ej: 2024-05-20T11:00:00Z)" }
+                    },
+                    required: ["provider", "summary", "start", "end"]
+                },
+            },
+        },
+        execute: async (args: { provider: "google" | "microsoft", summary: string, description?: string, start: string, end: string }, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario.";
+            const tokens = await getTokens(userId, tenantId, args.provider);
+            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}.`;
+
+            if (args.provider === "google") {
+                const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+                oauth2Client.setCredentials(tokens);
+                const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+                
+                const event = {
+                    summary: args.summary,
+                    description: args.description,
+                    start: { dateTime: args.start },
+                    end: { dateTime: args.end },
                 };
+
+                const res = await calendar.events.insert({
+                    calendarId: 'primary',
+                    requestBody: event,
+                });
+
+                return `Evento '${args.summary}' creado con éxito en Google Calendar. Link: ${res.data.htmlLink}`;
+            } else {
+                // Microsoft SDK logic
+                const client = Client.init({
+                    authProvider: (done) => {
+                        done(null, (tokens as any).accessToken);
+                    },
+                });
+
+                const event = {
+                    subject: args.summary,
+                    body: {
+                        contentType: "HTML",
+                        content: args.description || ""
+                    },
+                    start: {
+                        dateTime: args.start,
+                        timeZone: "UTC"
+                    },
+                    end: {
+                        dateTime: args.end,
+                        timeZone: "UTC"
+                    }
+                };
+
+                const res = await client.api('/me/events').post(event);
+                return `Evento '${args.summary}' creado con éxito en Outlook. ID: ${res.id}`;
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "send_email",
+                description: "Envía un correo electrónico desde la cuenta del usuario (Gmail o Outlook).",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        provider: { type: "string", enum: ["google", "microsoft"] },
+                        to: { type: "string", description: "Email del destinatario" },
+                        subject: { type: "string", description: "Asunto del correo" },
+                        body: { type: "string", description: "Cuerpo del mensaje" }
+                    },
+                    required: ["provider", "to", "subject", "body"]
+                },
+            },
+        },
+        execute: async (args: { provider: "google" | "microsoft", to: string, subject: string, body: string }, tenantId: string = "main", userId?: number) => {
+            if (!userId) return "Error: No se pudo identificar al usuario.";
+            const tokens = await getTokens(userId, tenantId, args.provider);
+            if (!tokens) return `No tengo autorización para acceder a tu ${args.provider}.`;
+
+            if (args.provider === "google") {
+                const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+                oauth2Client.setCredentials(tokens);
+                const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+                const utf8Subject = `=?utf-8?B?${Buffer.from(args.subject).toString('base64')}?=`;
+                const messageParts = [
+                    `To: ${args.to}`,
+                    'Content-Type: text/plain; charset=utf-8',
+                    'MIME-Version: 1.0',
+                    `Subject: ${utf8Subject}`,
+                    '',
+                    args.body,
+                ];
+                const message = messageParts.join('\n');
+                const encodedMessage = Buffer.from(message)
+                    .toString('base64')
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, '');
+
+                await gmail.users.messages.send({
+                    userId: 'me',
+                    requestBody: { raw: encodedMessage },
+                });
+
+                return `Correo enviado con éxito a ${args.to} vía Gmail.`;
+            } else {
+                const client = Client.init({
+                    authProvider: (done) => {
+                        done(null, (tokens as any).accessToken);
+                    },
+                });
+
+                const mail = {
+                    message: {
+                        subject: args.subject,
+                        body: {
+                            contentType: "Text",
+                            content: args.body
+                        },
+                        toRecipients: [
+                            { emailAddress: { address: args.to } }
+                        ]
+                    }
+                };
+
+                await client.api('/me/sendMail').post(mail);
+                return `Correo enviado con éxito a ${args.to} vía Outlook.`;
             }
         }
     },

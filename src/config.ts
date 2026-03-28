@@ -23,6 +23,9 @@ const configSchema = z.object({
     MS_CLIENT_SECRET: z.string().optional(),
     OPENAI_API_KEY: z.string().optional(),
     GEMINI_API_KEY: z.string().optional(),
+    OLLAMA_API_KEY: z.string().optional(),
+    OLLAMA_BASE_URL: z.string().default("https://api.studio.nebius.ai/v1"),
+    OLLAMA_MODEL: z.string().default("meta-llama/Meta-Llama-3.1-70B-Instruct"),
 });
 
 const parseResult = configSchema.safeParse(process.env);
@@ -56,6 +59,9 @@ export const env = parseResult.success
         MS_CLIENT_SECRET: process.env.MS_CLIENT_SECRET,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        OLLAMA_API_KEY: process.env.OLLAMA_API_KEY,
+        OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || "https://api.studio.nebius.ai/v1",
+        OLLAMA_MODEL: process.env.OLLAMA_MODEL || "meta-llama/Meta-Llama-3.1-70B-Instruct",
     };
 
 // Procesar tenants

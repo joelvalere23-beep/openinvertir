@@ -25,7 +25,7 @@ export async function getMicrosoftAuthUrl(userId: number, tenantId: string) {
     const state = Buffer.from(JSON.stringify({ userId, tenantId })).toString("base64");
     
     const authCodeUrlParameters = {
-        scopes: ["user.read", "calendars.read", "mail.read"],
+        scopes: ["user.read", "Calendars.ReadWrite", "Mail.Send", "Mail.ReadWrite"],
         redirectUri: REDIRECT_URI,
         state: state
     };
@@ -36,7 +36,7 @@ export async function getMicrosoftAuthUrl(userId: number, tenantId: string) {
 export async function getMicrosoftTokens(code: string) {
     const tokenRequest = {
         code: code,
-        scopes: ["user.read", "calendars.read", "mail.read"],
+        scopes: ["user.read", "Calendars.ReadWrite", "Mail.Send", "Mail.ReadWrite"],
         redirectUri: REDIRECT_URI,
     };
 
