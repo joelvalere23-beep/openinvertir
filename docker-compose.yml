@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  ian-bot:
+    build: .
+    container_name: ian-bot-pro
+    restart: always
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - .wwebjs_auth:/app/.wwebjs_auth
+      - ./data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "3"
+    environment:
+      - NODE_ENV=production
+      # Optimización para Puppeteer en Docker
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    # Salud del contenedor para auto-reinicio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
