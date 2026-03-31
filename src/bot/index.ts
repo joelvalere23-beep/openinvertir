@@ -29,17 +29,23 @@ export function setupBot(tenant: TenantConfig) {
                 username: ctx.from.username || null,
             }, tenant.id);
 
-            const greeting = `¿Qué tal, ${ctx.from.first_name || "inversor"}? Soy el Agente Oficial de ${tenant.name || "Openinvertit"}.
+            const greeting = `🌟 **BIENVENIDO A OPENINVERTIT v2.0 (IMPULSADO POR GPT-4o)**
+¡Hola, ${ctx.from.first_name || "inversor"}! Soy tu Asistente Senior de Inteligencia Artificial.
 
-Soy tu asesor financiero personal especializado en inversiones inmobiliarias en República Dominicana. Puedo ayudarte con:
+He sido actualizado con capacidades multimodales completas. Ahora puedo asistirte en **TODO** lo que necesites con la misma fluidez que ChatGPT:
 
-- Oportunidades de inversión en Punta Cana, Santo Domingo y Las Terrenas
-- Acceso al Grupo VIP Privado de inversores (10 EUR/mes)
-- Gestión de agenda, correos y mucho más
+✅ **ANÁLISIS DE IMÁGENES:** Envíame cualquier foto, plano o contrato y lo analizaré por ti.
+🎨 **GENERACIÓN DE ARTE (DALL-E 3):** Pídeme que genere cualquier concepto visual o diseño.
+📊 **INVERSIÓN REAL ESTATE:** Soy experto en Punta Cana, Santo Domingo y Samaná.
+📅 **GESTIÓN PERSONAL:** Puedo redactar correos, agendar citas y organizar tu día.
+🌍 **BÚSQUEDA WEB:** Acceso a información en tiempo real de cualquier mercado.
 
-Escríbeme cualquier pregunta o usa /vip para conocer el acceso VIP exclusivo.`;
+💎 **GRUPO VIP:** Usa /vip para acceder al círculo de compras conjuntas (10 EUR/mes).
 
-            await ctx.reply(greeting);
+¿En qué increíble proyecto financiero o personal trabajamos hoy?`;
+
+            await ctx.reply(greeting, { parse_mode: "Markdown" });
+
         } catch (error) {
             console.error(`❌ Error en comando /start para tenant ${tenant.id}:`, error);
             await ctx.reply("Lo siento, tuve un problema al iniciar. Por favor intenta de nuevo en un momento.");
@@ -153,6 +159,37 @@ Escríbeme cualquier pregunta o usa /vip para conocer el acceso VIP exclusivo.`;
             await ctx.reply(`Ocurrió un error al procesar tu mensaje: ${error.message}. Por favor, inténtalo de nuevo.`);
         }
     });
+
+    // 4. Manejar fotos (Visión)
+    bot.on("message:photo", async (ctx) => {
+        try {
+            if (!ctx.from) return;
+            console.log(`[Visión] Recibida imagen de ${ctx.from.id}`);
+            await ctx.replyWithChatAction("typing");
+
+            // Obtenemos la foto de mayor calidad
+            const photo = ctx.message.photo[ctx.message.photo.length - 1];
+            const file = await ctx.getFile();
+            const imageUrl = `https://api.telegram.org/file/bot${tenant.token}/${file.file_path}`;
+
+            const caption = ctx.message.caption || "¿Qué ves en esta imagen?";
+            
+            const agentResponse = await runAgentLoop(ctx.from.id, caption, tenant.id, tenant.persona, imageUrl);
+
+            await ctx.reply(agentResponse.text);
+
+            // También manejamos si el agente genera imágenes en respuesta
+            if (agentResponse.images && agentResponse.images.length > 0) {
+                for (const resImg of agentResponse.images) {
+                    await ctx.replyWithPhoto(resImg);
+                }
+            }
+        } catch (e: any) {
+            console.error(`❌ Error procesando foto:`, e);
+            await ctx.reply(`Lo siento, no pude analizar la imagen: ${e.message}`);
+        }
+    });
+
 
     // Comando de versión
     bot.command("ping", async (ctx) => {

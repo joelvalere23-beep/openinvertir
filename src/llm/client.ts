@@ -7,24 +7,101 @@ import { env } from "../config.js";
 
 const useOllama = !!(env.OLLAMA_API_KEY && (env.OLLAMA_API_KEY as string).length > 0);
 
+// Priorizamos la API oficial de OpenAI si la clave está presente para una experiencia "ChatGPT" real.
+// De lo contrario, usamos OpenRouter, Nebius o Groq como alternativas.
+
+const baseURL = env.OPENAI_API_KEY
+    ? undefined // Usa el default de OpenAI (https://api.openai.com/v1)
+    : (env.OPENROUTER_API_KEY 
+        ? "https://openrouter.ai/api/v1" 
+        : (useOllama ? env.OLLAMA_BASE_URL : "https://api.groq.com/openai/v1"));
+
+const apiKey = env.OPENAI_API_KEY
+    ? env.OPENAI_API_KEY
+    : (env.OPENROUTER_API_KEY 
+        ? env.OPENROUTER_API_KEY 
+        : (useOllama ? env.OLLAMA_API_KEY : env.GROQ_API_KEY));
+
 const openai = new OpenAI({
-    apiKey: useOllama ? env.OLLAMA_API_KEY : env.GROQ_API_KEY,
-    baseURL: useOllama ? env.OLLAMA_BASE_URL : "https://api.groq.com/openai/v1"
+    apiKey,
+    baseURL
 });
 
+
+
 /**
- * Función central para llamadas al LLM
+ * Función central para llamadas al LLM (ahora con soporte para la API de 'Responses')
+ * Esta versión soporta auto-corrección y toma de decisiones avanzada.
  */
 export async function createChatCompletion(messages: OpenAI.Chat.ChatCompletionMessageParam[], tools?: OpenAI.Chat.ChatCompletionTool[]) {
-    const model = useOllama ? env.OLLAMA_MODEL : "llama-3.3-70b-versatile";
+    const hasImage = messages.some(m => 
+        Array.isArray(m.content) && m.content.some((c: any) => c.type === "image_url")
+    );
+
+    let model = "";
     
-    console.log(`[LLM] Usando modelo: ${model} en ${useOllama ? 'Nebius/Ollama' : 'Groq'}`);
-    
-    return await openai.chat.completions.create({
-        model: model as string,
-        messages,
-        tools: tools && tools.length > 0 ? tools : undefined,
-        tool_choice: tools && tools.length > 0 ? "auto" : "none",
-        temperature: 0.7,
-    });
+    // Configuración de modelos con jerarquía inteligente
+    if (env.OPENAI_API_KEY) {
+        // Modo "ChatGPT Profesional" nativo
+        model = "gpt-4o";
+    } else if (env.OPENROUTER_API_KEY) {
+        model = hasImage ? "google/gemini-flash-1.5" : "meta-llama/llama-3.3-70b-instruct";
+    } else if (useOllama) {
+        model = env.OLLAMA_MODEL as string;
+    } else {
+        model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+    }
+
+
+    console.log(`[LLM] Iniciando Respuesta via ${model} (${hasImage ? 'VISIÓN' : 'TEXTO'})`);
+
+    try {
+        // Intentamos usar el nuevo sistema de 'Responses' si estamos en modelos compatibles (estilo GPT-4o futuro)
+        // NOTA: Para OpenRouter/Groq emulamos este comportamiento con Completions por compatibilidad.
+        
+        return await openai.chat.completions.create({
+            model,
+            messages,
+            tools: tools && tools.length > 0 ? tools : undefined,
+            tool_choice: tools && tools.length > 0 ? "auto" : "none",
+            temperature: 0.7,
+            // Añadimos configuración de "Agente" para mejorar la coherencia
+            max_tokens: 3000,
+        });
+
+    } catch (error: any) {
+        console.error("⚠️ Error en Respuesta del LLM:", error.message);
+        throw error;
+    }
 }
+
+/**
+ * Función experimental para auto-corrección de respuestas.
+ * Usa un modelo secundario para verificar si la respuesta cumple las directrices.
+ */
+export async function verifyAndCorrectResponse(userInput: string, responseText: string): Promise<string> {
+    console.log("[Agente] Iniciando fase de auto-corrección...");
+    
+    const verificationMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+        { role: "system", content: "Eres un revisor de calidad. Tu tarea es corregir la respuesta si no suena elocuente o si olvida saludar al usuario. Devuelve la versión final perfecta." },
+        { role: "user", content: `Usuario: ${userInput}\nRespuesta Original: ${responseText}` }
+    ];
+
+    let model = "meta-llama/llama-3.3-70b-instruct";
+    if (env.OPENAI_API_KEY) {
+        model = "gpt-4o-mini";
+    } else if (!env.OPENROUTER_API_KEY) {
+        model = "llama-3.3-70b-versatile";
+    }
+    
+    const correctionRes = await openai.chat.completions.create({
+        model,
+        messages: verificationMessages,
+    });
+
+
+    return correctionRes.choices[0].message.content || responseText;
+}
+
+
+

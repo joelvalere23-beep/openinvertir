@@ -19,9 +19,12 @@ const msalConfig: Configuration = {
     },
 };
 
-const pca = new ConfidentialClientApplication(msalConfig);
+const pca = msalConfig.auth.clientId && msalConfig.auth.clientSecret 
+    ? new ConfidentialClientApplication(msalConfig)
+    : null;
 
 export async function getMicrosoftAuthUrl(userId: number, tenantId: string) {
+    if (!pca) return "Error: Configuración de Microsoft incompleta.";
     const state = Buffer.from(JSON.stringify({ userId, tenantId })).toString("base64");
     
     const authCodeUrlParameters = {

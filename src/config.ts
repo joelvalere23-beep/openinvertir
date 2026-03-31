@@ -26,7 +26,11 @@ const configSchema = z.object({
     OLLAMA_API_KEY: z.string().optional(),
     OLLAMA_BASE_URL: z.string().default("https://api.studio.nebius.ai/v1"),
     OLLAMA_MODEL: z.string().default("meta-llama/Meta-Llama-3.1-70B-Instruct"),
+    IMAGE_GEN_API_KEY: z.string().optional(),
+    IMAGE_GEN_BASE_URL: z.string().optional(),
+    IMAGE_GEN_MODEL: z.string().default("gpt-image-1.5"),
 });
+
 
 const parseResult = configSchema.safeParse(process.env);
 
@@ -43,8 +47,9 @@ if (!parseResult.success) {
 }
 
 export const env = parseResult.success 
-    ? parseResult.data 
+    ? { ...parseResult.data, IMAGE_GEN_API_KEY: process.env.IMAGE_GEN_API_KEY } 
     : {
+
         TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || "",
         TELEGRAM_VIP_GROUP_ID: process.env.TELEGRAM_VIP_GROUP_ID || "",
         GROQ_API_KEY: process.env.GROQ_API_KEY || "",
@@ -62,7 +67,9 @@ export const env = parseResult.success
         OLLAMA_API_KEY: process.env.OLLAMA_API_KEY,
         OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || "https://api.studio.nebius.ai/v1",
         OLLAMA_MODEL: process.env.OLLAMA_MODEL || "meta-llama/Meta-Llama-3.1-70B-Instruct",
+        IMAGE_GEN_API_KEY: process.env.IMAGE_GEN_API_KEY,
     };
+
 
 // Procesar tenants
 export interface TenantConfig {

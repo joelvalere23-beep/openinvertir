@@ -4,6 +4,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import { Api } from "grammy";
 import { env } from "../config.js";
 import axios from "axios";
+import { db } from "../db/firebase.js";
 
 const telegramApi = new Api(env.TELEGRAM_BOT_TOKEN);
 
@@ -473,8 +474,165 @@ export const tools: OpeninvertitTool[] = [
                 return `Error al generar el enlace de invitación VIP: ${e.message}. Asegúrate de que el bot sea administrador del grupo.`;
             }
         }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "generate_image",
+                description: "Genera una imagen artística, realista o descriptiva a partir de una descripción textual.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: { type: "string", description: "Descripción detallada de la imagen a generar (en inglés o español)" },
+                        style: { type: "string", description: "Estilo opcional (realista, anime, cinematográfico, etc.)" }
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string, style?: string }) => {
+            const finalPrompt = args.style ? `${args.prompt}, style: ${args.style}` : args.prompt;
+            
+            // 🎨 MODO PROFESIONAL (DALL-E 3)
+            if (env.OPENAI_API_KEY) {
+                try {
+                    console.log("[Tool] Generando imagen con DALL-E 3...");
+                    const openaiDirect = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+                    const res = await openaiDirect.images.generate({
+                        model: "dall-e-3",
+                        prompt: finalPrompt,
+                        n: 1,
+                        size: "1024x1024",
+                    });
+                    
+                    if (res.data && res.data.length > 0 && res.data[0].url) {
+                        return {
+                            text: `He generado esta imagen profesional para ti: "${args.prompt}"`,
+                            image: res.data[0].url
+                        };
+                    }
+                } catch (error: any) {
+                    console.error("[DALLE-3] Error:", error.message);
+                }
+            }
+
+            // 🎨 MODO FLEXIBLE (Pollinations) - Fallback
+            try {
+                const encodedPrompt = encodeURIComponent(finalPrompt);
+                // Pollinations es gratuito y no requiere API key para uso genérico en su endpoint base:
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
+                
+                return {
+                    text: `He generado esta imagen para ti: "${args.prompt}"`,
+                    image: imageUrl
+                };
+            } catch (e: any) {
+                return {
+                    text: "Lo siento, tuve un problema técnico al crear la imagen. ¿Podrías intentar describirla de otra forma?",
+                };
+            }
+        },
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "research_web_n8n",
+                description: "Realiza una investigación profunda en la web usando un agente de IA avanzado (Firecrawl + n8n). Ideal para buscar precios, listados, noticias actuales o cualquier dato estructurado de una web.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: { type: "string", description: "Instrucción detallada de lo que quieres buscar o extraer de la web (en español o inglés)" },
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string }) => {
+            const webhookUrl = "https://alnel23.app.n8n.cloud/webhook/scrape-agent";
+            console.log(`[Tool] Llamando a n8n para investigación: ${args.prompt}`);
+
+            try {
+                const response = await axios.post(webhookUrl, {
+                    prompt: args.prompt,
+                    output_schema: {
+                        type: "object",
+                        additionalProperties: true
+                    }
+                }, {
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: 240000 // 4 minutos de margen para n8n
+                });
+
+                const data = response.data;
+                const resultText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+
+                return {
+                    text: `Investigación completada vía n8n:\n\n${resultText}`,
+                };
+            } catch (error: any) {
+                console.error("❌ Error en n8n research:", error.message);
+                return {
+                    text: `Error al contactar con el agente de n8n: ${error.message}. Asegúrate de que el flujo en n8n esté activo.`,
+                };
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "publish_news",
+                description: "Publica una noticia, reporte o artículo en el portal adanlester.com. Úsala para informar a la comunidad sobre eventos, investigaciones o reportes ciudadanos.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string", description: "El titular de la noticia (impactante y claro)" },
+                        content: { type: "string", description: "El cuerpo detallado de la noticia o artículo" },
+                        category: { type: "string", description: "Categoría (Comunidad, Política, Inversión, Tecnología, etc.)" },
+                        author: { type: "string", description: "Nombre del autor o 'Equipo AdanLester'" },
+                        image: { type: "string", description: "URL de una imagen de portada (opcional, usa generate_image si no tienes una)" }
+                    },
+                    required: ["title", "content", "category"],
+                },
+            },
+        },
+        execute: async (args: { title: string, content: string, category: string, author?: string, image?: string }) => {
+            console.log(`[Tool] Publicando noticia: ${args.title}`);
+
+            try {
+                // Si tenemos Firebase Admin (db) disponible, escribimos directo
+                if (db) {
+                    const docRef = await db.collection("news").add({
+                        ...args,
+                        author: args.author || "Equipo AdanLester",
+                        timestamp: new Date() // El admin SDK maneja fechas nativamente
+                    });
+                    
+                    return {
+                        text: `✅ ¡Noticia publicada DIRECTAMENTE con éxito en adanlester.com!\n\n**Título:** ${args.title}\n**Categoría:** ${args.category}\n\nPuedes verla en: https://periodico-adan.web.app`,
+                    };
+                }
+
+                // Fallback a n8n si no hay DB directa
+                const webhookUrl = "https://alnel23.app.n8n.cloud/webhook/publish-news";
+                await axios.post(webhookUrl, { ...args, timestamp: new Date().toISOString() });
+
+                return {
+                    text: `✅ ¡Noticia enviada a n8n para su publicación!\n\n**Título:** ${args.title}\n\nVer en: https://periodico-adan.web.app`,
+                };
+            } catch (error: any) {
+                console.error("❌ Error al publicar noticia:", error.message);
+                return {
+                    text: `Error al intentar publicar la noticia: ${error.message}. Por favor, verifica la conexión con la base de datos.`,
+                };
+            }
+        }
     }
 ];
+
+
 
 export const toolDefinitions = tools.map((t) => t.definition);
 

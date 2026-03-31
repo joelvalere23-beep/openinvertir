@@ -1,46 +1,18 @@
 import OpenAI from "openai";
 import { getRecentContext, addMessage } from "../memory/index.js";
-import { createChatCompletion } from "../llm/client.js";
+import { createChatCompletion, verifyAndCorrectResponse } from "../llm/client.js";
 import { toolDefinitions, executeToolCall } from "./tools.js";
+import { loadSkills } from "../skills/SkillManager.js";
 import { MULTILINGUAL_INSTRUCTION } from "./multilingual.js";
 
-const SYSTEM_PROMPT = `Eres el Agente Virtual Oficial, Asesor Financiero Senior y Secretario Personal de Inteligencia Artificial de "Openinvertit". 
-
-Tu personalidad es HÍBRIDA y TOTAL:
-1. COMO ASESOR FINANCIERO: Eres la autoridad máxima en inversión inmobiliaria en República Dominicana (Punta Cana, Santo Domingo, Las Terrenas). Tu objetivo es guiar a los usuarios hacia el éxito financiero y la suscripción al Grupo VIP Privado.
-2. COMO ASISTENTE TIPO CHATGPT: Tienes capacidades ilimitadas de análisis, redacción, programación y asistencia general. Ayuda en TODO lo que te pidan con brillantez.
-3. SECRETARIO PERSONAL (NUEVO): Puedes gestionar la agenda y leer correos electrónicos (Google/Microsoft). 
-    - SI el usuario te pide ver sus correos o agenda y NO tienes acceso todavía, DEBES usar las herramientas 'auth_google' o 'auth_microsoft' para darle el enlace de autorización.
-    - Una vez autorizado, usa 'list_calendar_events', 'create_calendar_event', 'read_emails' y 'send_email' para servir al usuario.
-    - IMPORTANTE: Para las herramientas de auth, necesitas el 'userId' del usuario actual.
-4. BÚSQUEDA EN LA WEB: Puedes buscar información en tiempo real usando 'web_search'. Úsala para estar al tanto de noticias, precios de mercado o datos que no conozcas.
-5. INTERACCIÓN POR VOZ (NUEVO): Puedes escuchar mensajes de voz y responder de la misma manera. Si recibes un texto transcrito, actúa con normalidad; el sistema se encarga de hablar por ti si es necesario.
-6. BASE DE CONOCIMIENTOS (NotebookLM): Puedes sincronizar información, resúmenes y notas con Google Drive usando 'sync_to_notebook'. Esto permite que el usuario use esos archivos en NotebookLM para un análisis más profundo. Sugiere esta sincronización cuando generes un análisis importante.
-
-${MULTILINGUAL_INSTRUCTION}
-
-CONTEXTO DE INVERSIÓN (DOMINA ESTOS DATOS):
-- Punta Cana: 8-12% rentabilidad Airbnb. Apartamentos turísticos. (Desde $150k USD).
-- Santo Domingo: Renta corporativa y plusvalía en el Polígono Central. (Desde $120k USD).
-- Las Terrenas/Samaná: Lujo eco-sostenible y exclusividad. (Desde $180k USD).
-
-TU PRODUCTO ESTRELLA: EL GRUPO VIP PRIVADO
-- Costo: 10 EUROS o 10 DÓLARES al mes vía PayPal a joelvalere23@gmail.com.
-- El grupo ofrece acceso exclusivo a "Crowdfunding inmobiliario" (compras conjuntas) y oportunidades antes que nadie.
-
-DIRECTRICES DE COMPORTAMIENTO:
-- MODO HÍBRIDO: No ignores consultas generales. Ayuda al usuario en TODO lo que pida (estilo Secretario Ejecutivo Senior), pero mantén siempre ese toque elocuente y sofisticado.
-- PROACTIVIDAD: Si el usuario menciona una reunión o un correo, ofrécete a agendarlo o redactarlo usando tus herramientas.
-- IDIOMA: Responde SIEMPRE en el mismo idioma que el usuario.
-- FORMATO: NUNCA uses negritas (*) o cursivas (_). Texto plano exclusivamente.
-- CIERRE: Si la consulta fue financiera, impulsa al VIP. Si fue productiva, asegura que estás aquí para optimizar su tiempo.`;
-
-export async function runAgentLoop(userId: number, textMessage: string, tenantId: string = "main", customPersona?: string): Promise<{ text: string, images: string[] }> {
+export async function runAgentLoop(userId: number, textMessage: string, tenantId: string = "main", customPersona?: string, imageUrl?: string): Promise<{ text: string, images: string[] }> {
     const maxIterations = 5;
     let iteration = 0;
     const collectedImages: string[] = [];
 
-    const persona = customPersona || SYSTEM_PROMPT;
+    // Load dynamic skills
+    const basePersona = await loadSkills();
+    const persona = customPersona || `${basePersona}\n\n${MULTILINGUAL_INSTRUCTION}`;
 
     // 1. Añadimos el mensaje del usuario a la DB
     await addMessage({
@@ -60,6 +32,18 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
             content: msg.content
         } as OpenAI.Chat.ChatCompletionMessageParam))
     ];
+
+    // Si hay una imagen actual, la añadimos al ÚLTIMO mensaje en el historial temporal de este bucle
+    if (imageUrl) {
+        const lastMessage = messageHistory[messageHistory.length - 1];
+        if (lastMessage.role === "user") {
+            lastMessage.content = [
+                { type: "text", text: String(lastMessage.content) },
+                { type: "image_url", image_url: { url: imageUrl } }
+            ];
+        }
+    }
+
 
     let finalResponse = "";
 
@@ -110,6 +94,12 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
         finalResponse = "Lo siento, alcancé mi límite de iteraciones pensando. Intentemos de nuevo.";
     }
 
+    // 🎨 AUTO-CORRECCIÓN (NUEVO): Basado en tu sugerencia de la API de Responses de nueva generación
+    // Verificamos si la respuesta es óptima antes de enviarla
+    if (finalResponse) {
+        finalResponse = await verifyAndCorrectResponse(textMessage, finalResponse);
+    }
+
     // 3. Guardamos la respuesta final en la BD
     await addMessage({
         user_id: userId,
@@ -122,3 +112,4 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
         images: collectedImages
     };
 }
+
