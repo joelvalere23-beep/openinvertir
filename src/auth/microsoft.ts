@@ -37,6 +37,8 @@ export async function getMicrosoftAuthUrl(userId: number, tenantId: string) {
 }
 
 export async function getMicrosoftTokens(code: string) {
+    if (!pca) throw new Error("Configuración de Microsoft (MSAL) incompleta o ausente.");
+
     const tokenRequest = {
         code: code,
         scopes: ["user.read", "Calendars.ReadWrite", "Mail.Send", "Mail.ReadWrite"],

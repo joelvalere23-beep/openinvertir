@@ -68,6 +68,8 @@ export const env = parseResult.success
         OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || "https://api.studio.nebius.ai/v1",
         OLLAMA_MODEL: process.env.OLLAMA_MODEL || "meta-llama/Meta-Llama-3.1-70B-Instruct",
         IMAGE_GEN_API_KEY: process.env.IMAGE_GEN_API_KEY,
+        IMAGE_GEN_BASE_URL: process.env.IMAGE_GEN_BASE_URL,
+        IMAGE_GEN_MODEL: process.env.IMAGE_GEN_MODEL || "gpt-image-1.5",
     };
 
 

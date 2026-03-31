@@ -27,10 +27,7 @@ export const tools: OpeninvertitTool[] = [
                 description: "Genera un enlace para que el usuario autorice el acceso a su Google Calendar y Gmail.",
                 parameters: {
                     type: "object",
-                    properties: {
-                        userId: { type: "number" }
-                    },
-                    required: ["userId"]
+                    properties: {},
                 },
             },
         },
@@ -485,26 +482,40 @@ export const tools: OpeninvertitTool[] = [
                     type: "object",
                     properties: {
                         prompt: { type: "string", description: "Descripción detallada de la imagen a generar (en inglés o español)" },
-                        style: { type: "string", description: "Estilo opcional (realista, anime, cinematográfico, etc.)" }
+                        style: { type: "string", description: "Estilo opcional (realista, anime, cinematográfico, etc.)" },
+                        background: { type: "string", enum: ["transparent", "opaque", "auto"], description: "Fondo de la imagen (transparente, opaco o automático)" }
                     },
                     required: ["prompt"],
                 },
             },
         },
-        execute: async (args: { prompt: string, style?: string }) => {
+        execute: async (args: { prompt: string, style?: string, background?: string }) => {
             const finalPrompt = args.style ? `${args.prompt}, style: ${args.style}` : args.prompt;
             
-            // 🎨 MODO PROFESIONAL (DALL-E 3)
-            if (env.OPENAI_API_KEY) {
+            // 🎨 MODO PROFESIONAL (DALL-E 3 / API Personalizada compatible con OpenAI)
+            if (env.IMAGE_GEN_API_KEY || env.OPENAI_API_KEY) {
                 try {
-                    console.log("[Tool] Generando imagen con DALL-E 3...");
-                    const openaiDirect = new OpenAI({ apiKey: env.OPENAI_API_KEY });
-                    const res = await openaiDirect.images.generate({
-                        model: "dall-e-3",
+                    console.log(`[Tool] Generando imagen con API modelo ${env.IMAGE_GEN_MODEL}...`);
+                    const openaiDirect = new OpenAI({ 
+                        apiKey: env.IMAGE_GEN_API_KEY || env.OPENAI_API_KEY,
+                        baseURL: env.IMAGE_GEN_BASE_URL // Fallbacks to default OpenAI if undefined
+                    });
+                    
+                    const payload: any = {
+                        model: env.IMAGE_GEN_MODEL || "dall-e-3",
                         prompt: finalPrompt,
                         n: 1,
                         size: "1024x1024",
-                    });
+                    };
+                    
+                    if (args.background && env.IMAGE_GEN_MODEL === "gpt-image-1.5") {
+                        payload.background = args.background;
+                        if (args.background === "transparent") {
+                            payload.response_format = "url"; // El formato normalmente cambia pero aseguramos
+                        }
+                    }
+
+                    const res = await openaiDirect.images.generate(payload);
                     
                     if (res.data && res.data.length > 0 && res.data[0].url) {
                         return {
@@ -513,7 +524,7 @@ export const tools: OpeninvertitTool[] = [
                         };
                     }
                 } catch (error: any) {
-                    console.error("[DALLE-3] Error:", error.message);
+                    console.error("[IMAGE_GEN] Error:", error.message);
                 }
             }
 
@@ -627,6 +638,186 @@ export const tools: OpeninvertitTool[] = [
                 return {
                     text: `Error al intentar publicar la noticia: ${error.message}. Por favor, verifica la conexión con la base de datos.`,
                 };
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "generate_video",
+                description: "Genera un clip de video (por defecto 4 segundos) a partir de una descripción de texto usando Sora-2.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: { type: "string", description: "Descripción detallada del video a generar" },
+                        model: { type: "string", enum: ["sora-2", "sora-2-pro"], description: "El modelo a utilizar" },
+                        seconds: { type: "string", enum: ["4", "8", "12"], description: "Duración en segundos" },
+                        size: { type: "string", enum: ["720x1280", "1280x720", "1024x1792", "1792x1024"], description: "Resolución del video" }
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string, model?: string, seconds?: string, size?: string }) => {
+            console.log(`[Tool] Iniciando generación de video Sora-2: ${args.prompt}`);
+            try {
+                const apiKey = env.OPENAI_API_KEY;
+                if (!apiKey) return { text: "No hay OPENAI_API_KEY configurada para generar videos." };
+
+                const baseUrl = env.IMAGE_GEN_BASE_URL || "https://api.openai.com/v1";
+                
+                // 1. Crear el Job de Video
+                const createRes = await axios.post(`${baseUrl}/videos`, {
+                    prompt: args.prompt,
+                    model: args.model || "sora-2",
+                    seconds: args.seconds || "4",
+                    size: args.size || "720x1280"
+                }, {
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const jobId = createRes.data.id;
+                console.log(`[Sora-2] Job creado: ${jobId}. Esperando completado...`);
+
+                // 2. Hacer Polling (hasta 15 intentos)
+                let status = createRes.data.status;
+                let videoData = createRes.data;
+                let attempts = 0;
+
+                while (status !== "completed" && status !== "failed" && attempts < 15) {
+                    await new Promise(res => setTimeout(res, 10000));
+                    attempts++;
+                    const checkRes = await axios.get(`${baseUrl}/videos/${jobId}`, {
+                        headers: { "Authorization": `Bearer ${apiKey}` }
+                    });
+                    status = checkRes.data.status;
+                    videoData = checkRes.data;
+                }
+
+                if (status === "completed") {
+                    return {
+                        text: `¡Video generado con éxito usando Sora-2!\nID: ${jobId}`,
+                        image: videoData.url || videoData.file_url || videoData.download_url
+                    };
+                }
+                return { text: `La generación del video está en estado: ${status}. ID: ${jobId}` };
+
+            } catch (error: any) {
+                return { text: `Error en Sora-2: ${error.message}` };
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "generate_image_horde",
+                description: "Genera imágenes de forma gratuita e ilimitada usando AI Horde (Comunidad descentralizada). Ideal cuando fallan otros proveedores.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: { type: "string", description: "Descripción detallada de la imagen" },
+                        nsfw: { type: "boolean", description: "Permitir contenido no apto para todo público (NSFW)" }
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string, nsfw?: boolean }) => {
+            console.log(`[Tool] Generando imagen via AI Horde: ${args.prompt}`);
+            try {
+                // 1. Solicitar generación
+                const response = await axios.post("https://aihorde.net/api/v2/generate/async", {
+                    prompt: args.prompt,
+                    params: {
+                        n: 1,
+                        steps: 25,
+                        width: 512,
+                        height: 512,
+                        sampler_name: "k_euler",
+                    },
+                    nsfw: args.nsfw || false,
+                    trusted_workers: false,
+                    censor_nsfw: !(args.nsfw)
+                }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": env.AI_HORDE_API_KEY || "0000000000" // Anonymous mode
+                    }
+                });
+
+                const id = response.data.id;
+                console.log(`[AI Horde] Job ID: ${id}. Esperando...`);
+
+                // 2. Polling (Máximo 2 minutos)
+                let attempts = 0;
+                while (attempts < 24) {
+                    await new Promise(r => setTimeout(r, 5000));
+                    attempts++;
+                    const check = await axios.get(`https://aihorde.net/api/v2/generate/status/${id}`);
+                    if (check.data.done) {
+                        const imgUrl = check.data.generations[0].img;
+                        return {
+                            text: `He generado esta imagen gratis para ti usando la red descentralizada AI Horde: "${args.prompt}"`,
+                            image: imgUrl
+                        };
+                    }
+                }
+                return { text: "La red de AI Horde está saturada. Por favor, intenta de nuevo en unos minutos." };
+            } catch (error: any) {
+                return { text: `Error en AI Horde: ${error.message}` };
+            }
+        }
+    },
+    {
+        definition: {
+            type: "function",
+            function: {
+                name: "generate_text_horde",
+                description: "Genera texto o respuestas complejas de forma gratuita usando AI Horde. Útil para razonamiento avanzado sin costo.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        prompt: { type: "string", description: "El prompt o pregunta para el modelo" }
+                    },
+                    required: ["prompt"],
+                },
+            },
+        },
+        execute: async (args: { prompt: string }) => {
+            console.log(`[Tool] Generando texto via AI Horde: ${args.prompt}`);
+            try {
+                const response = await axios.post("https://aihorde.net/api/v2/generate/text/async", {
+                    prompt: args.prompt,
+                    params: {
+                        max_context_length: 2048,
+                        max_length: 500,
+                        temperature: 0.7
+                    }
+                }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": env.AI_HORDE_API_KEY || "0000000000"
+                    }
+                });
+
+                const id = response.data.id;
+                let attempts = 0;
+                while (attempts < 20) {
+                    await new Promise(r => setTimeout(r, 3000));
+                    attempts++;
+                    const check = await axios.get(`https://aihorde.net/api/v2/generate/text/status/${id}`);
+                    if (check.data.done) {
+                        return check.data.generations[0].text;
+                    }
+                }
+                return "El modelo de texto gratuito está ocupado. Intenta de nuevo.";
+            } catch (error: any) {
+                return `Error en AI Horde Text: ${error.message}`;
             }
         }
     }

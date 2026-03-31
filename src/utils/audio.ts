@@ -12,15 +12,17 @@ export async function transcribeAudio(audioPath: string): Promise<string> {
     try {
         console.log(`🎤 Transcribiendo audio: ${audioPath}`);
         
-        // Usamos Groq para Whisper si está disponible, es compatible con el SDK de OpenAI
-        const groq = new OpenAI({
-            apiKey: env.GROQ_API_KEY,
-            baseURL: "https://api.groq.com/openai/v1"
+        let apiKey = env.OPENAI_API_KEY;
+        if (!apiKey && env.GROQ_API_KEY) apiKey = env.GROQ_API_KEY; // Fallback opcional
+
+        const openai = new OpenAI({
+            apiKey: apiKey,
+            baseURL: env.IMAGE_GEN_BASE_URL || undefined 
         });
 
-        const transcription = await groq.audio.transcriptions.create({
+        const transcription = await openai.audio.transcriptions.create({
             file: fs.createReadStream(audioPath),
-            model: "whisper-large-v3-turbo",
+            model: "gpt-4o-transcribe",
         });
 
         return transcription.text;
@@ -31,14 +33,46 @@ export async function transcribeAudio(audioPath: string): Promise<string> {
 }
 
 /**
+ * Traduce un archivo de audio (en cualquier idioma) a texto en Inglés.
+ * Requisito basado en /v1/audio/translations con el modelo whisper-1.
+ */
+export async function translateAudio(audioPath: string): Promise<string> {
+    try {
+        console.log(`🌍 Módulo de Traducción Whisper activado para: ${audioPath}`);
+        
+        let apiKey = env.OPENAI_API_KEY;
+        if (!apiKey && env.GROQ_API_KEY) apiKey = env.GROQ_API_KEY; // Fallback por si usan groq
+
+        const openai = new OpenAI({
+            apiKey: apiKey,
+            // Si el motor es OpenAI oficial, no hace falta baseURL
+            baseURL: env.IMAGE_GEN_BASE_URL || undefined 
+        });
+
+        // Este endpoint siempre traduce al Inglés (comportamiento de la API oficial)
+        const translation = await openai.audio.translations.create({
+            file: fs.createReadStream(audioPath),
+            model: "whisper-1",
+        });
+
+        return translation.text;
+    } catch (e: any) {
+        console.error("❌ Error en Traducción de Audio (Whisper):", e.message);
+        return "";
+    }
+}
+
+
+/**
  * Convierte texto a audio (MP3) usando OpenAI TTS.
  * Requiere una clave de OpenAI válida en env.OPENAI_API_KEY.
  */
 export async function generateVoice(text: string, outputPath: string): Promise<boolean> {
     try {
         let apiKey = env.OPENAI_API_KEY;
-        let baseURL = undefined;
-        let model = "tts-1";
+        let baseURL = undefined; // Dejará que use la API estándar, o puedes cambiarlo aquí por el de tu proveedor
+        let model = "tts-1-hd"; // Usamos HD para máxima calidad
+        let targetVoice = "nova"; // Voz más suave y conversacional, ideal para el estilo VibeVoice de Microsoft.
 
         if (!apiKey && env.OPENROUTER_API_KEY) {
             console.log("🌐 Usando OpenRouter para TTS...");
@@ -48,7 +82,7 @@ export async function generateVoice(text: string, outputPath: string): Promise<b
         }
 
         if (!apiKey) {
-            console.warn("⚠️ No se encontró clave para TTS (OpenAI o OpenRouter).");
+            console.warn("⚠️ No se encontró clave para TTS.");
             return false;
         }
 
@@ -57,7 +91,7 @@ export async function generateVoice(text: string, outputPath: string): Promise<b
 
         const mp3 = await openai.audio.speech.create({
             model: model as any,
-            voice: "shimmer", 
+            voice: targetVoice as any, 
             input: text,
         });
 

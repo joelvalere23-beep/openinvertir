@@ -7,20 +7,20 @@ import { env } from "../config.js";
 
 const useOllama = !!(env.OLLAMA_API_KEY && (env.OLLAMA_API_KEY as string).length > 0);
 
-// Priorizamos la API oficial de OpenAI si la clave está presente para una experiencia "ChatGPT" real.
-// De lo contrario, usamos OpenRouter, Nebius o Groq como alternativas.
+// 🚀 AHORA PRIORIZAMOS GROQ PARA EL LLM CENTRAL DEL BOT (Evitar límites de OpenAI).
+// Las imágenes, audio y video seguirán usando OpenAI directamente en sus respectivos archivos.
 
-const baseURL = env.OPENAI_API_KEY
-    ? undefined // Usa el default de OpenAI (https://api.openai.com/v1)
+const baseURL = env.GROQ_API_KEY
+    ? "https://api.groq.com/openai/v1"
     : (env.OPENROUTER_API_KEY 
         ? "https://openrouter.ai/api/v1" 
-        : (useOllama ? env.OLLAMA_BASE_URL : "https://api.groq.com/openai/v1"));
+        : (useOllama ? env.OLLAMA_BASE_URL : undefined));
 
-const apiKey = env.OPENAI_API_KEY
-    ? env.OPENAI_API_KEY
+const apiKey = env.GROQ_API_KEY
+    ? env.GROQ_API_KEY
     : (env.OPENROUTER_API_KEY 
         ? env.OPENROUTER_API_KEY 
-        : (useOllama ? env.OLLAMA_API_KEY : env.GROQ_API_KEY));
+        : (useOllama ? env.OLLAMA_API_KEY : env.OPENAI_API_KEY));
 
 const openai = new OpenAI({
     apiKey,
@@ -40,16 +40,15 @@ export async function createChatCompletion(messages: OpenAI.Chat.ChatCompletionM
 
     let model = "";
     
-    // Configuración de modelos con jerarquía inteligente
-    if (env.OPENAI_API_KEY) {
-        // Modo "ChatGPT Profesional" nativo
-        model = "gpt-4o";
+    // Configuración de modelos con jerarquía inteligente adaptada a Groq
+    if (env.GROQ_API_KEY) {
+        model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
     } else if (env.OPENROUTER_API_KEY) {
         model = hasImage ? "google/gemini-flash-1.5" : "meta-llama/llama-3.3-70b-instruct";
     } else if (useOllama) {
         model = env.OLLAMA_MODEL as string;
     } else {
-        model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+        model = "gpt-4o-mini"; // Fallback a OpenAI si no hay más remedio
     }
 
 
@@ -88,10 +87,12 @@ export async function verifyAndCorrectResponse(userInput: string, responseText: 
     ];
 
     let model = "meta-llama/llama-3.3-70b-instruct";
-    if (env.OPENAI_API_KEY) {
-        model = "gpt-4o-mini";
-    } else if (!env.OPENROUTER_API_KEY) {
+    if (env.GROQ_API_KEY) {
         model = "llama-3.3-70b-versatile";
+    } else if (env.OPENROUTER_API_KEY) {
+        model = "meta-llama/llama-3.3-70b-instruct";
+    } else {
+        model = "gpt-4o-mini";
     }
     
     const correctionRes = await openai.chat.completions.create({
