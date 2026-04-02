@@ -94,11 +94,9 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
         finalResponse = "Lo siento, alcancé mi límite de iteraciones pensando. Intentemos de nuevo.";
     }
 
-    // 🎨 AUTO-CORRECCIÓN (NUEVO): Basado en tu sugerencia de la API de Responses de nueva generación
-    // Verificamos si la respuesta es óptima antes de enviarla
-    if (finalResponse) {
-        finalResponse = await verifyAndCorrectResponse(textMessage, finalResponse);
-    }
+    // 🎨 AUTO-CORRECCIÓN DESACTIVADA PARA VELOCIDAD MÁXIMA
+    // Ya no hacemos una segunda llamada al LLM para "verificar". 
+    // Ahora Ian responde directamente para evitar latencias altas.
 
     // 3. Guardamos la respuesta final en la BD
     await addMessage({
