@@ -5,12 +5,10 @@ import { env } from "../config.js";
 // En este caso, usaremos OpenRouter por defecto porque el usuario lo especificó. 
 // Si se prefiere usar la key de Groq directamente, se puede cambiar la baseURL a "https://api.groq.com/openai/v1"
 
+const hasMammouth = !!(env.MAMMOUTH_API_KEY && env.MAMMOUTH_API_KEY !== "TU_CLAVE_AQUÍ");
 const useOllama = !!(env.OLLAMA_API_KEY && (env.OLLAMA_API_KEY as string).length > 0);
 
-// 🚀 AHORA PRIORIZAMOS GROQ PARA EL LLM CENTRAL DEL BOT (Evitar límites de OpenAI).
-// Las imágenes, audio y video seguirán usando OpenAI directamente en sus respectivos archivos.
-
-const apiKey = env.MAMMOUTH_API_KEY
+const apiKey = hasMammouth
     ? env.MAMMOUTH_API_KEY
     : (env.GROQ_API_KEY 
         ? env.GROQ_API_KEY
@@ -18,7 +16,7 @@ const apiKey = env.MAMMOUTH_API_KEY
             ? env.OPENROUTER_API_KEY 
             : (useOllama ? env.OLLAMA_API_KEY : env.OPENAI_API_KEY)));
 
-const baseURL = env.MAMMOUTH_API_KEY
+const baseURL = hasMammouth
     ? "https://api.mammouth.ai/v1"
     : (env.GROQ_API_KEY
         ? "https://api.groq.com/openai/v1"
@@ -45,7 +43,7 @@ export async function createChatCompletion(messages: OpenAI.Chat.ChatCompletionM
     let model = "";
     
     // Configuración de modelos con jerarquía inteligente adaptada a Mammouth / Groq
-    if (env.MAMMOUTH_API_KEY) {
+    if (hasMammouth) {
         model = "gpt-4.1";
     } else if (env.GROQ_API_KEY) {
         model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
