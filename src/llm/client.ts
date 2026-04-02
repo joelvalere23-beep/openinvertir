@@ -59,21 +59,31 @@ export async function createChatCompletion(messages: OpenAI.Chat.ChatCompletionM
     console.log(`[LLM] Iniciando Respuesta via ${model} (${hasImage ? 'VISIÓN' : 'TEXTO'})`);
 
     try {
-        // Intentamos usar el nuevo sistema de 'Responses' si estamos en modelos compatibles (estilo GPT-4o futuro)
-        // NOTA: Para OpenRouter/Groq emulamos este comportamiento con Completions por compatibilidad.
-        
         return await openai.chat.completions.create({
             model,
             messages,
             tools: tools && tools.length > 0 ? tools : undefined,
             tool_choice: tools && tools.length > 0 ? "auto" : "none",
             temperature: 0.7,
-            // Añadimos configuración de "Agente" para mejorar la coherencia
             max_tokens: 3000,
         });
 
     } catch (error: any) {
-        console.error("⚠️ Error en Respuesta del LLM:", error.message);
+        // 🚀 FALLBACK INTELIGENTE: Si Groq falla por Rate Limit (429), probamos OpenAI como respaldo
+        if (error.status === 429 || error.message?.includes('429')) {
+            console.warn(`⚠️ Rate Limit en ${model}. Activando Fallback a OpenAI...`);
+            
+            const openaiBackup = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+            return await openaiBackup.chat.completions.create({
+                model: "gpt-4o-mini", // Modelo de alta disponibilidad y bajo costo para emergencias
+                messages,
+                tools: tools && tools.length > 0 ? tools : undefined,
+                tool_choice: tools && tools.length > 0 ? "auto" : "none",
+                temperature: 0.7,
+            });
+        }
+        
+        console.error("❌ Error Crítico en LLM:", error.message);
         throw error;
     }
 }

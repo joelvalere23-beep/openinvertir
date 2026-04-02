@@ -23,6 +23,7 @@ export async function runAgentLoop(userId: number, textMessage: string, tenantId
 
     // 2. Extraemos el contexto reciente de la BD
     const recentMessages = await getRecentContext(userId, tenantId, 15);
+    console.log(`[Memoria] Contexto de ${userId} recuperado: ${recentMessages.length} mensajes.`);
 
     // Convertimos al formato OpenAI
     const messageHistory: OpenAI.Chat.ChatCompletionMessageParam[] = [
