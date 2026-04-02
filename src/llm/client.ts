@@ -10,17 +10,21 @@ const useOllama = !!(env.OLLAMA_API_KEY && (env.OLLAMA_API_KEY as string).length
 // 🚀 AHORA PRIORIZAMOS GROQ PARA EL LLM CENTRAL DEL BOT (Evitar límites de OpenAI).
 // Las imágenes, audio y video seguirán usando OpenAI directamente en sus respectivos archivos.
 
-const baseURL = env.GROQ_API_KEY
-    ? "https://api.groq.com/openai/v1"
-    : (env.OPENROUTER_API_KEY 
-        ? "https://openrouter.ai/api/v1" 
-        : (useOllama ? env.OLLAMA_BASE_URL : undefined));
+const apiKey = env.MAMMOUTH_API_KEY
+    ? env.MAMMOUTH_API_KEY
+    : (env.GROQ_API_KEY 
+        ? env.GROQ_API_KEY
+        : (env.OPENROUTER_API_KEY 
+            ? env.OPENROUTER_API_KEY 
+            : (useOllama ? env.OLLAMA_API_KEY : env.OPENAI_API_KEY)));
 
-const apiKey = env.GROQ_API_KEY
-    ? env.GROQ_API_KEY
-    : (env.OPENROUTER_API_KEY 
-        ? env.OPENROUTER_API_KEY 
-        : (useOllama ? env.OLLAMA_API_KEY : env.OPENAI_API_KEY));
+const baseURL = env.MAMMOUTH_API_KEY
+    ? "https://api.mammouth.ai/v1"
+    : (env.GROQ_API_KEY
+        ? "https://api.groq.com/openai/v1"
+        : (env.OPENROUTER_API_KEY 
+            ? "https://openrouter.ai/api/v1" 
+            : (useOllama ? env.OLLAMA_BASE_URL : undefined)));
 
 const openai = new OpenAI({
     apiKey,
@@ -40,8 +44,10 @@ export async function createChatCompletion(messages: OpenAI.Chat.ChatCompletionM
 
     let model = "";
     
-    // Configuración de modelos con jerarquía inteligente adaptada a Groq
-    if (env.GROQ_API_KEY) {
+    // Configuración de modelos con jerarquía inteligente adaptada a Mammouth / Groq
+    if (env.MAMMOUTH_API_KEY) {
+        model = "gpt-4.1";
+    } else if (env.GROQ_API_KEY) {
         model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
     } else if (env.OPENROUTER_API_KEY) {
         model = hasImage ? "google/gemini-flash-1.5" : "meta-llama/llama-3.3-70b-instruct";

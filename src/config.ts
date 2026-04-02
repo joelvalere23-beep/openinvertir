@@ -29,6 +29,7 @@ const configSchema = z.object({
     IMAGE_GEN_API_KEY: z.string().optional(),
     IMAGE_GEN_BASE_URL: z.string().optional(),
     IMAGE_GEN_MODEL: z.string().default("gpt-image-1.5"),
+    MAMMOUTH_API_KEY: z.string().optional(),
 });
 
 
@@ -70,6 +71,7 @@ export const env = parseResult.success
         IMAGE_GEN_API_KEY: process.env.IMAGE_GEN_API_KEY,
         IMAGE_GEN_BASE_URL: process.env.IMAGE_GEN_BASE_URL,
         IMAGE_GEN_MODEL: process.env.IMAGE_GEN_MODEL || "gpt-image-1.5",
+        MAMMOUTH_API_KEY: process.env.MAMMOUTH_API_KEY,
     };
 
 
